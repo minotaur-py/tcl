@@ -1,0 +1,998 @@
+[
+    {
+        "status": "ALL OK.",
+        "start_time": 1764051299.7358046,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 67,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 18.24616289138794
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764054650.1518416,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 61,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 16.40838050842285
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764058429.95432,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 18.122918367385864
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764061938.5273442,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 57,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 12.98940372467041
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764064890.1086404,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 19.223629474639893
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764068483.6549664,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.93947148323059
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764073077.910712,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.56011176109314
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764077178.94804,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.896100282669067
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764079297.1381907,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 65,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 15.512443542480469
+    },
+    {
+        "status": "Process crash.",
+        "start_time": 1764081605.1169872,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764081916.663128,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.915743350982666
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764082912.7256188,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 12.23047161102295
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764087097.1684086,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 18.258435010910034
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764101519.9323435,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 71,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 14.713808298110962
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764118218.8996518,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 106,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.152038812637329
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764130615.0951936,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 80,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 14.724233865737915
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764144912.7176073,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 62,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 12.157230138778687
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764159724.6743424,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 10.10161566734314
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764173593.9654276,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 74,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 11.402639627456665
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764174657.926061,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 16.813934326171875
+    },
+    {
+        "status": "Process crash.",
+        "start_time": 1764175533.2425494,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 56,
+        "new_customs": 0,
+        "new_customs_processed": 0
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764187938.1537242,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 108,
+        "new_customs": 2,
+        "new_customs_processed": 3,
+        "duration": 10.375566959381104
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764204548.2110019,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 178,
+        "new_customs": 10,
+        "new_customs_processed": 13,
+        "duration": 18.743578910827637
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764216900.6371412,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 116,
+        "new_customs": 3,
+        "new_customs_processed": 16,
+        "duration": 18.673330545425415
+    },
+    {
+        "status": "Process crash.",
+        "start_time": 1764259993.6628692,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 108,
+        "new_customs": 0,
+        "new_customs_processed": 0
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764274205.5505507,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 174,
+        "new_customs": 4,
+        "new_customs_processed": 20,
+        "duration": 10.629160165786743
+    },
+    {
+        "status": "Process crash.",
+        "start_time": 1764317733.232577,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 164,
+        "new_customs": 0,
+        "new_customs_processed": 0
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764320511.5352402,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 9,
+        "new_customs": 0,
+        "new_customs_processed": 20,
+        "duration": 2.322582960128784
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764320912.7176104,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 9,
+        "new_customs": 0,
+        "new_customs_processed": 20,
+        "duration": 2.0765490531921387
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764321371.3844013,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 18363,
+        "new_customs": 753,
+        "new_customs_processed": 753,
+        "duration": 408.78323435783386
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764332434.4337282,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 65,
+        "new_customs": 0,
+        "new_customs_processed": 0,
+        "duration": 21.3795166015625
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764346354.3402717,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 113,
+        "new_customs": 11,
+        "new_customs_processed": 11,
+        "duration": 22.479538917541504
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764360695.8201962,
+        "mode_selected": 1,
+        "mode_actual": 1,
+        "games_checked": 162,
+        "new_customs": 17,
+        "new_customs_processed": 17,
+        "duration": 17.327574491500854
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764361823.503674,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 62,
+        "new_customs": 0,
+        "new_customs_processed": 17,
+        "duration": 10.885395526885986
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764377287.157682,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 120,
+        "new_customs": 8,
+        "new_customs_processed": 25,
+        "duration": 21.667288780212402
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764389605.5088677,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 90,
+        "new_customs": 0,
+        "new_customs_processed": 25,
+        "duration": 12.30115008354187
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764404034.581109,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 61,
+        "new_customs": 0,
+        "new_customs_processed": 25,
+        "duration": 11.07003927230835
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764418679.6854498,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 73,
+        "new_customs": 0,
+        "new_customs_processed": 25,
+        "duration": 10.482651472091675
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764429080.4500575,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 18685,
+        "new_customs": 801,
+        "new_customs_processed": 801,
+        "duration": 612.6940894126892
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764432703.6895282,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 67,
+        "new_customs": 2,
+        "new_customs_processed": 803,
+        "duration": 11.71719479560852
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764447069.6718194,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 82,
+        "new_customs": 0,
+        "new_customs_processed": 803,
+        "duration": 19.224812269210815
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764464214.1467667,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 111,
+        "new_customs": 0,
+        "new_customs_processed": 803,
+        "duration": 13.099562644958496
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764476748.5472906,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 93,
+        "new_customs": 0,
+        "new_customs_processed": 803,
+        "duration": 16.409014225006104
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764490371.055954,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 64,
+        "new_customs": 0,
+        "new_customs_processed": 803,
+        "duration": 10.666985511779785
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764505090.5246842,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 58,
+        "new_customs": 0,
+        "new_customs_processed": 803,
+        "duration": 12.135606288909912
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764514534.0989857,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 240,
+        "new_customs": 4,
+        "new_customs_processed": 807,
+        "duration": 17.862953424453735
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764519104.845873,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 68,
+        "new_customs": 0,
+        "new_customs_processed": 807,
+        "duration": 15.10233998298645
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764523072.8406804,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 75,
+        "new_customs": 4,
+        "new_customs_processed": 811,
+        "duration": 17.763927698135376
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764533491.9916692,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 66,
+        "new_customs": 0,
+        "new_customs_processed": 811,
+        "duration": 19.71300506591797
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764545182.870952,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 77,
+        "new_customs": 0,
+        "new_customs_processed": 811,
+        "duration": 19.430060386657715
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764550865.8121414,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 90,
+        "new_customs": 0,
+        "new_customs_processed": 811,
+        "duration": 12.257788896560669
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764564074.180889,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 136,
+        "new_customs": 7,
+        "new_customs_processed": 818,
+        "duration": 14.85020661354065
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764577058.4939897,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 119,
+        "new_customs": 11,
+        "new_customs_processed": 829,
+        "duration": 22.255091667175293
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764591693.6751385,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 63,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 11.426147937774658
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764592977.6262374,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 58,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.857279539108276
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764605724.9394844,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 81,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.227824926376343
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764619832.3312805,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 104,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 11.75680923461914
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764636709.1907763,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 122,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.68375301361084
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764649263.863526,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 84,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.134808778762817
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764663377.3884344,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 67,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 19.68606686592102
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764678153.292612,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 64,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.476267099380493
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764692098.2910912,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 78,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 15.120697736740112
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764706374.3450568,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 77,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 19.98335313796997
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764723074.1331728,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 121,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 18.711994409561157
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764735569.3714018,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 142,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 11.236163854598999
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764749740.7646422,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 78,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 11.843978643417358
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764764502.3668623,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 89,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.053142070770264
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764777317.805875,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 63,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.882213354110718
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764778541.1031237,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 62,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.006492614746094
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764792787.00083,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 117,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.349099397659302
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764809506.4831512,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 126,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 12.548110723495483
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764822069.4667377,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 68,
+        "new_customs": 0,
+        "new_customs_processed": 829,
+        "duration": 11.449785232543945
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764836186.055317,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 109,
+        "new_customs": 8,
+        "new_customs_processed": 837,
+        "duration": 12.932004928588867
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764850922.966,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 79,
+        "new_customs": 3,
+        "new_customs_processed": 840,
+        "duration": 19.755994081497192
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764864913.684497,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 82,
+        "new_customs": 2,
+        "new_customs_processed": 842,
+        "duration": 11.369054317474365
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764873767.7268686,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 98,
+        "new_customs": 6,
+        "new_customs_processed": 848,
+        "duration": 20.145815134048462
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764879152.761099,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 81,
+        "new_customs": 2,
+        "new_customs_processed": 850,
+        "duration": 17.985289335250854
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764895934.6720095,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 125,
+        "new_customs": 0,
+        "new_customs_processed": 850,
+        "duration": 19.832345485687256
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764908442.1879163,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 105,
+        "new_customs": 0,
+        "new_customs_processed": 850,
+        "duration": 15.835558891296387
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764922519.0793924,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 98,
+        "new_customs": 9,
+        "new_customs_processed": 859,
+        "duration": 14.130454301834106
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764937289.6292505,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 58,
+        "new_customs": 0,
+        "new_customs_processed": 859,
+        "duration": 14.006020069122314
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764951233.4399652,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 87,
+        "new_customs": 5,
+        "new_customs_processed": 864,
+        "duration": 22.804118871688843
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764960896.8222759,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 106,
+        "new_customs": 8,
+        "new_customs_processed": 872,
+        "duration": 13.946637392044067
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764965546.4238746,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 78,
+        "new_customs": 5,
+        "new_customs_processed": 877,
+        "duration": 14.16779088973999
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764981364.0590723,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 143,
+        "new_customs": 9,
+        "new_customs_processed": 886,
+        "duration": 20.25372815132141
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764982108.7787857,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 61,
+        "new_customs": 0,
+        "new_customs_processed": 886,
+        "duration": 13.975944995880127
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1764994324.057725,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "new_customs_processed": 886,
+        "duration": 12.252379417419434
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765008810.396653,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 77,
+        "new_customs": 2,
+        "new_customs_processed": 888,
+        "duration": 18.554075241088867
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765023513.6627614,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 95,
+        "new_customs": 6,
+        "new_customs_processed": 894,
+        "duration": 17.355238914489746
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765036670.3685942,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 3,
+        "new_customs": 0,
+        "new_customs_processed": 894,
+        "duration": 1.8067877292633057
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765037168.668235,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 130,
+        "new_customs": 13,
+        "new_customs_processed": 907,
+        "duration": 17.191414833068848
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765044096.212947,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 100,
+        "new_customs": 7,
+        "new_customs_processed": 914,
+        "duration": 14.435391187667847
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765052879.7513213,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 110,
+        "new_customs": 3,
+        "new_customs_processed": 917,
+        "duration": 11.909522294998169
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765074029.2697182,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 161,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 19.284807682037354
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765082176.011261,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 66,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 12.374525547027588
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765096315.4222345,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 62,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 16.6312575340271
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765106141.7452419,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 71,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 19.86660671234131
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765109188.0324388,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 16.18864870071411
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765111784.1072533,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 59,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 20.284973859786987
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1765112934.8774922,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 60,
+        "new_customs": 0,
+        "new_customs_processed": 917,
+        "duration": 12.103152751922607
+    }
+]
