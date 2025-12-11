@@ -177,9 +177,9 @@ if (seasonLabelEl) {
 
 
   const [ratings, names] = await Promise.all([
-    fetchNoCache(`data/seasons/${currentSeason}/ratings.json`).then(r => r.json()),
-    fetchNoCache("data/names.json").then(r => r.json())
-  ]);
+  fetchNoCache(`data/seasons/${currentSeason}/ratings.json`).then(r => r.json()),
+  fetchNoCache(`data/seasons/${currentSeason}/names.json`).then(r => r.json())
+]);
 
   // Convert ratings into player objects
   const allPlayers = Object.entries(ratings).map(([id, v]) => {

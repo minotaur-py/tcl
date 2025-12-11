@@ -11,7 +11,7 @@ async function loadPlayerPage() {
 
   const [playerData, names, maps, ratings] = await Promise.all([
     fetchNoCache(`data/seasons/${currentSeason}/players/${playerId}.json`).then(r => r.json()),
-    fetchNoCache("data/names.json").then(r => r.json()),
+    fetchNoCache(`data/seasons/${currentSeason}/names.json`).then(r => r.json()),
     fetchNoCache("data/maps.json").then(r => r.json()),
     fetchNoCache(`data/seasons/${currentSeason}/ratings.json`).then(r => r.json())
   ]);
@@ -1256,9 +1256,45 @@ function matchupChartOptions(mode, list, barThickness = 44) {
     const x = mouse ? mouse.x : tooltip.caretX;
     const y = mouse ? mouse.y : tooltip.caretY;
 
-    tooltipEl.style.left = (rect.left + window.pageXOffset + x + 14) + "px";
-    tooltipEl.style.top  = (rect.top + window.pageYOffset + y - 12) + "px";
-    tooltipEl.style.opacity = 1;
+// Desired position
+let tooltipX = rect.left + window.pageXOffset + x + 14;
+let tooltipY = rect.top + window.pageYOffset + y - 12;
+
+// Tooltip size
+const ttWidth  = tooltipEl.offsetWidth;
+const ttHeight = tooltipEl.offsetHeight;
+
+const viewportWidth  = window.visualViewport?.width  ?? window.innerWidth;
+const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
+// Clamp horizontally
+if (tooltipX + ttWidth > viewportWidth - 6) {
+  tooltipX = viewportWidth - ttWidth - 6;
+}
+if (tooltipX < 0) {
+  tooltipX = 0;
+}
+
+// Clamp vertically (optional)
+if (tooltipY + ttHeight > window.innerHeight - 8) {
+  tooltipY = window.innerHeight - ttHeight - 8;
+}
+if (tooltipY < 0) {
+  tooltipY = 0;
+}
+
+
+
+
+
+
+
+
+
+
+    tooltipEl.style.left = tooltipX + "px";
+tooltipEl.style.top  = tooltipY + "px";
+tooltipEl.style.opacity = 1;
   }
 }
     },
@@ -1652,57 +1688,65 @@ function drawer3ChartOptions(mode, list, barThickness) {
 
 let drawer4ChartInstance = null;
 let drawer4DataCache = null;
-let drawer4Names = null;
 
-// small utility to load names once
-async function loadNames() {
-  if (drawer4Names) return drawer4Names;
-  drawer4Names = await fetchNoCache("data/names.json").then(r => r.json());
-  return drawer4Names;
+// Names cache for seasons
+let drawer4NamesCache = {};
+
+// Load names once per season
+async function loadNames(season) {
+  if (drawer4NamesCache[season]) {
+    return drawer4NamesCache[season];
+  }
+
+  try {
+    const res = await fetchNoCache(`data/seasons/${season}/names.json`);
+    const json = await res.json();
+    drawer4NamesCache[season] = json;
+    return json;
+  } catch (err) {
+    console.error("[drawer4] names.json error:", err);
+    return {};
+  }
 }
 
-
+// Update container height based on number of bars
 function updateExtraChart4Height(barCount) {
-  // Use the same logic as Drawer 3
-  const base = 340; 
-  const extraBars = Math.max(0, barCount - 10);
-  const perBar = 24; 
-  const height = base + extraBars * perBar;
+  const base = 340;
+  const extra = Math.max(0, barCount - 10);
+  const height = base + extra * 24;
 
-  // Assuming the container has the ID "extraChart4Container" (or find its parent)
   const container = document.getElementById("extraChart4Container");
   if (container) {
     container.style.height = height + "px";
   }
 }
 
-
-
-
-
-
 async function loadDrawer4Chart(playerId) {
   const season = await getCurrentSeason();
 
-  const [stats, names] = await Promise.all([
-    fetchNoCache(`data/seasons/${season}/statistics_data.json`).then(r => r.json()),
-    loadNames()
-  ]);
+  let stats, names;
+  try {
+    [stats, names] = await Promise.all([
+      fetchNoCache(`data/seasons/${season}/statistics_data.json`).then(r => r.json()),
+      loadNames(season)
+    ]);
+  } catch (err) {
+    console.error("[drawer4] loading error:", err);
+    return;
+  }
 
-  const raw = stats.drawer4?.[playerId];
+  const raw = stats?.drawer4?.[playerId];
   if (!raw) return;
 
   drawer4DataCache = parseDrawer4Data(raw, names);
-  
-  updateExtraChart4Height(drawer4DataCache.length); 
+  updateExtraChart4Height(drawer4DataCache.length);
 
   drawDrawer4Total(drawer4DataCache);
 
-
-  
-
   const labelEl = document.getElementById("extraChart4Label");
   const toggleEl = document.getElementById("chartModeToggle4");
+
+  if (!labelEl || !toggleEl) return;
 
   labelEl.textContent = "Total MMR Gained with Each Ally";
   toggleEl.dataset.mode = "total";
@@ -1710,8 +1754,8 @@ async function loadDrawer4Chart(playerId) {
   toggleEl.style.display = "inline-block";
 
   toggleEl.onclick = () => {
-    const m = toggleEl.dataset.mode;
-    if (m === "total") {
+    const mode = toggleEl.dataset.mode;
+    if (mode === "total") {
       drawDrawer4PerGame(drawer4DataCache);
       toggleEl.dataset.mode = "pergame";
       toggleEl.textContent = "Show Total MMR Gained";
@@ -1722,53 +1766,44 @@ async function loadDrawer4Chart(playerId) {
       toggleEl.textContent = "Show MMR per Game";
       labelEl.textContent = "Total MMR Gained with Each Ally";
     }
-    updateExtraChart4Height(drawer4DataCache.length);     /* fra høydejustering */
+    updateExtraChart4Height(drawer4DataCache.length);
   };
 }
 
-// ======================================================================
-// Parse drawer4 → list usable by charts
-// drawer4[playerId] = { allyId: [mmr, wins, losses], ... }
-// ======================================================================
+// Parse raw drawer4 data
 function parseDrawer4Data(obj, names) {
-  return Object.entries(obj)
+  return Object.entries(obj || {})
     .map(([allyId, arr]) => {
       const [mmr, wins, losses] = arr ?? [0, 0, 0];
       const games = (wins ?? 0) + (losses ?? 0);
 
       return {
         allyId,
-        allyName: names[allyId] || allyId,
+        allyName: names?.[allyId] || allyId,
         total: mmr ?? 0,
         wins: wins ?? 0,
         losses: losses ?? 0,
         games,
-        perGame: games > 0 ? (mmr / games) : 0
+        perGame: games > 0 ? mmr / games : 0
       };
     })
     .sort((a, b) => b.total - a.total);
 }
 
-// ======================================================================
-// Reset
-// ======================================================================
+// Reset old chart
 function resetDrawer4Chart() {
   if (drawer4ChartInstance) {
-    drawer4ChartInstance.destroy();
+    try { drawer4ChartInstance.destroy(); } catch {}
     drawer4ChartInstance = null;
   }
 }
 
-// ======================================================================
-// Helper: Color scale for MMR
-// ======================================================================
+// Color Helpers
 function mmrColor(v) {
   if (v >= 0) {
-    // green (#32AA5E) → neutral (#444)
     const t = Math.min(v / 50, 1);
     return interpolateColor("#444444", "#32AA5E", t);
   } else {
-    // red (#BA5531) → neutral (#444)
     const t = Math.min(Math.abs(v) / 50, 1);
     return interpolateColor("#444444", "#BA5531", t);
   }
@@ -1788,12 +1823,11 @@ function hexToRgb(hex) {
   return { r: (v >> 16) & 255, g: (v >> 8) & 255, b: v & 255 };
 }
 
-
 function makeMmrColorFunction(list, mode) {
-  const values = list.map(x => mode === "total" ? x.total : x.perGame);
+  const values = list.map(x => (mode === "total" ? x.total : x.perGame));
   const maxAbs = Math.max(...values.map(v => Math.abs(v))) || 1;
 
-  return function(v) {
+  return function (v) {
     const t = Math.min(Math.abs(v) / maxAbs, 1);
     if (v >= 0) {
       return interpolateColor("#444444", "#32AA5E", t);
@@ -1803,18 +1837,15 @@ function makeMmrColorFunction(list, mode) {
   };
 }
 
-
-
-
-// ======================================================================
-// Draw TOTAL
-// ======================================================================
+// Draw TOTAL MMR
 function drawDrawer4Total(list) {
   resetDrawer4Chart();
 
-  const ctx = document.getElementById("extraChart4").getContext("2d");
-  const thickness = Math.max(14, calcBarThicknessHigh(list.length));
+  const canvas = document.getElementById("extraChart4");
+  if (!canvas) return;
 
+  const ctx = canvas.getContext("2d");
+  const thickness = Math.max(14, calcBarThicknessHigh(list.length));
   const colorFn = makeMmrColorFunction(list, "total");
 
   drawer4ChartInstance = new Chart(ctx, {
@@ -1832,18 +1863,17 @@ function drawDrawer4Total(list) {
   });
 }
 
-// ======================================================================
-// Draw PER GAME
-// ======================================================================
+// Draw MMR per game
 function drawDrawer4PerGame(list) {
   resetDrawer4Chart();
 
-  // make a sorted copy by perGame
   const sorted = [...list].sort((a, b) => b.perGame - a.perGame);
 
-  const ctx = document.getElementById("extraChart4").getContext("2d");
-  const thickness = Math.max(14, calcBarThicknessHigh(list.length));
+  const canvas = document.getElementById("extraChart4");
+  if (!canvas) return;
 
+  const ctx = canvas.getContext("2d");
+  const thickness = Math.max(14, calcBarThicknessHigh(list.length));
   const colorFn = makeMmrColorFunction(sorted, "pergame");
 
   drawer4ChartInstance = new Chart(ctx, {
@@ -1861,15 +1891,7 @@ function drawDrawer4PerGame(list) {
   });
 }
 
-
-
-
-
-
-
-// ======================================================================
-// Tooltip + options
-// ======================================================================
+// chart options (tooltip, axes)
 function drawer4ChartOptions(mode, list, barThickness) {
   let tooltipEl = document.getElementById("bar-tooltip-drawer4");
   if (!tooltipEl) {
@@ -1897,72 +1919,82 @@ function drawer4ChartOptions(mode, list, barThickness) {
     indexAxis: "y",
 
     datasets: {
-      bar: {
-        barThickness,
-        maxBarThickness: 44
-      }
+      bar: { barThickness, maxBarThickness: 44 }
     },
 
     plugins: {
       legend: { display: false },
       tooltip: {
         enabled: false,
-
         external: ctx => {
-          const tooltip = ctx.tooltip;
-          if (!tooltip || !tooltip.opacity) {
-            tooltipEl.style.opacity = 0;
-            return;
-          }
+  const tooltip = ctx.tooltip;
+  if (!tooltip || !tooltip.opacity) {
+    tooltipEl.style.opacity = 0;
+    return;
+  }
 
-          const dp = tooltip.dataPoints?.[0];
-          if (!dp) return;
+  const dp = tooltip.dataPoints?.[0];
+  if (!dp) return;
 
-          const entry = list[dp.dataIndex];
-          const { allyName, wins, losses, games, total, perGame } = entry;
+  const entry = list[dp.dataIndex];
+  const { allyName, wins, losses, games, total, perGame } = entry;
+  const wr = games > 0 ? (wins / games) * 100 : 0;
+  const mmrValue = mode === "total" ? total : perGame;
+  const absVal = Math.abs(mmrValue).toFixed(2);
 
-          const wr = games > 0 ? (wins / games) * 100 : 0;
-          const mmrValue = mode === "total" ? total : perGame;
-          const absVal = Math.abs(mmrValue).toFixed(2);
-          const mmrLabel =
-            mmrValue < 0
-              ? (mode === "total" ? "MMR lost" : "MMR lost per game")
-              : (mode === "total" ? "MMR gained" : "MMR gained per game");
+  tooltipEl.innerHTML = `
+    <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
+    <div style="font-family:monospace; opacity:0.85;">
+      ${wins} wins, ${losses} losses, ${wr.toFixed(1)}%. 
+      ${absVal} ${mmrValue < 0
+        ? (mode === "total" ? "MMR lost." : "MMR lost per game.")
+        : (mode === "total" ? "MMR gained." : "MMR gained per game.")}
+    </div>
+  `;
 
-          tooltipEl.innerHTML = `
-            <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
-            <div style="font-family:monospace; opacity:0.85;">
-              ${wins} wins, ${losses} losses, ${wr.toFixed(1)}%.
-              ${absVal} ${mmrLabel}.
-            </div>
-          `;
+const rect = ctx.chart.canvas.getBoundingClientRect();
+    const mouse = ctx.chart.tooltip?._eventPosition;
+    const x = mouse ? mouse.x : tooltip.caretX;
+    const y = mouse ? mouse.y : tooltip.caretY;
 
-          const rect = ctx.chart.canvas.getBoundingClientRect();
-          const mouse = ctx.chart.tooltip?._eventPosition;
-          const x = mouse ? mouse.x : tooltip.caretX;
-          const y = mouse ? mouse.y : tooltip.caretY;
+// Desired position
+let tooltipX = rect.left + window.pageXOffset + x + 14;
+let tooltipY = rect.top + window.pageYOffset + y - 12;
 
-          tooltipEl.style.left =
-            rect.left + window.pageXOffset + x + 14 + "px";
-          tooltipEl.style.top =
-            rect.top + window.pageYOffset + y - 12 + "px";
-          tooltipEl.style.opacity = 1;
-        }
+// Tooltip size
+const ttWidth  = tooltipEl.offsetWidth;
+const ttHeight = tooltipEl.offsetHeight;
+
+const viewportWidth  = window.visualViewport?.width  ?? window.innerWidth;
+const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+
+// Clamp horizontally
+if (tooltipX + ttWidth > viewportWidth - 6) {
+  tooltipX = viewportWidth - ttWidth - 6;
+}
+if (tooltipX < 0) {
+  tooltipX = 0;
+}
+
+
+
+
+
+
+tooltipEl.style.left = tooltipX + "px";
+tooltipEl.style.top  = tooltipY + "px";
+tooltipEl.style.opacity = 1;
+}
       }
     },
 
     scales: {
-      x: {
-        beginAtZero: true,
-        grid: { color: "#222" },
-        ticks: { color: "#AAA" }
-      },
-      y: {
-        ticks: { color: "#AAA" }
-      }
+      x: { beginAtZero: true, grid: { color: "#222" }, ticks: { color: "#AAA" } },
+      y: { ticks: { color: "#AAA" } }
     }
   };
 }
+
 
 
 
