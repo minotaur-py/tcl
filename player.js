@@ -1231,8 +1231,8 @@ function matchupChartOptions(mode, list, barThickness = 44) {
 
     // Extract races directly from the label "(P)Z", "(T)P", etc.
     const match = label.match(/^\((.)\)(.)$/);
-    let raceA = match ? match[1].toLowerCase() : "p";
-    let raceB = match ? match[2].toLowerCase() : "z";
+    const raceA = entry.teammateA.toLowerCase();
+    const raceB = entry.teammateB.toLowerCase();
 
     const colors = { p: "#EBD678", t: "#53B3FC", z: "#C1A3F5" };
     const c1 = colors[raceA] || "#999";
