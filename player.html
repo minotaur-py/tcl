@@ -434,6 +434,28 @@
   width: 100%;           
   height: 100%;          
   display: block;
+
+
+@media (max-width: 1600px) and (min-width: 1300px) {
+    body {
+        
+        padding-left: calc(180px - (1600px - 100vw) / 2);
+        padding-right: calc(180px - (1600px - 100vw) / 2);
+    }
+}
+
+
+@media (max-width: 1299.98px) {
+    body {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+
+
+
+
+
   
 }
 
@@ -585,4 +607,5 @@
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6820535a2c3146b19ce320c0992fde34"}'></script><!-- End Cloudflare Web Analytics -->
 
 </body>
+
 </html>
