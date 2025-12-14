@@ -865,9 +865,7 @@ function drawPerGameChart(data) {
 
           const mmrAbs = Math.abs(mmrValue).toFixed(2);
 
-          // -----------------------------------------------------------
-          // HTML (two-line layout)
-          // -----------------------------------------------------------
+          
           let html = `
             <div style="display:flex; align-items:center; font-weight:bold;">
               <span style="
@@ -893,9 +891,7 @@ function drawPerGameChart(data) {
 
           tooltipEl.innerHTML = html;
 
-          // -----------------------------------------------------------
-          // Accurate mouse positioning (REAL cursor position)
-          // -----------------------------------------------------------
+         
 
           const rect = ctx.chart.canvas.getBoundingClientRect();
 
@@ -994,6 +990,7 @@ async function loadMatchupChart(playerId) {
 // ======================================================================
 // Parse pwm → usable list
 // ======================================================================
+
 function parseMatchupData(obj) {
   // helper: decide which teammate gets parentheses based on key[0]
   function decideParenthesis(playerRace, t1, t2) {
@@ -1065,6 +1062,7 @@ function parseMatchupData(obj) {
 // ======================================================================
 // Chart rendering
 // ======================================================================
+
 function resetMatchupChart() {
   if (matchupChartInstance) {
     matchupChartInstance.destroy();
@@ -1122,9 +1120,7 @@ function drawMatchupChartPerGame(list) {
   });
 }
 
-// ======================================================================
-// Colors
-// ======================================================================
+
 function matchupColor(key) {
   const race = key[0];
   return {
@@ -1292,7 +1288,7 @@ if (tooltipY < 0) {
 
 
 
-    tooltipEl.style.left = tooltipX + "px";
+tooltipEl.style.left = tooltipX + "px";
 tooltipEl.style.top  = tooltipY + "px";
 tooltipEl.style.opacity = 1;
   }
@@ -1328,9 +1324,7 @@ tooltipEl.style.opacity = 1;
 let drawer3ChartInstance = null;
 let drawer3DataCache = null;
 
-// ======================================================================
-// Drawer 3 – NEW version with integrated bar-count height logic
-// ======================================================================
+
 async function loadDrawer3Chart(playerId) {
   const season = await getCurrentSeason();
   const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
@@ -1994,6 +1988,7 @@ tooltipEl.style.opacity = 1;
     }
   };
 }
+
 
 
 
