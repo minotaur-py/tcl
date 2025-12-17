@@ -1880,21 +1880,30 @@ async function loadDrawer4Chart(playerId) {
   toggleEl.textContent = "Show Points per Game";
   toggleEl.style.display = "inline-block";
 
-  toggleEl.onclick = () => {
-    const mode = toggleEl.dataset.mode;
-    if (mode === "total") {
-      drawDrawer4PerGame(drawer4DataCache);
-      toggleEl.dataset.mode = "pergame";
-      toggleEl.textContent = "Show All Points Gained";
-      labelEl.textContent = "Points Gained per Game with Each Ally";
-    } else {
-      drawDrawer4Total(drawer4DataCache);
-      toggleEl.dataset.mode = "total";
-      toggleEl.textContent = "Show Points per Game";
-      labelEl.textContent = "Points Gained with Each Ally";
-    }
-    updateExtraChart4Height(drawer4DataCache.length);
-  };
+toggleEl.onclick = () => {
+  const mode = toggleEl.dataset.mode;
+
+  if (mode === "total") {
+    drawDrawer4PerGame(drawer4DataCache);
+    toggleEl.dataset.mode = "pergame";
+    toggleEl.textContent = "Show Games Played";
+    labelEl.textContent = "Points Gained per Game with Each Ally";
+
+  } else if (mode === "pergame") {
+    drawDrawer4Games(drawer4DataCache);
+    toggleEl.dataset.mode = "games";
+    toggleEl.textContent = "Show All Points Gained";
+    labelEl.textContent = "Number of Games Played with Each Ally";
+
+  } else {
+    drawDrawer4Total(drawer4DataCache);
+    toggleEl.dataset.mode = "total";
+    toggleEl.textContent = "Show Points per Game";
+    labelEl.textContent = "Points Gained with Each Ally";
+  }
+
+  updateExtraChart4Height(drawer4DataCache.length);
+};
 }
 
 // Parse raw drawer4 data
@@ -2018,6 +2027,52 @@ function drawDrawer4PerGame(list) {
   });
 }
 
+
+
+function drawDrawer4Games(list) {
+  resetDrawer4Chart();
+
+  const sorted = [...list].sort((a, b) => b.games - a.games);
+
+  const canvas = document.getElementById("extraChart4");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const thickness = Math.max(14, calcBarThicknessHigh(sorted.length));
+
+  drawer4ChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: sorted.map(x => x.allyName),
+      datasets: [{
+        data: sorted.map(x => x.games),
+        backgroundColor: "#4A6FA5",
+        barThickness: thickness,
+        maxBarThickness: 44
+      }]
+    },
+    options: drawer4ChartOptions("games", sorted, thickness)
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // chart options (tooltip, axes)
 function drawer4ChartOptions(mode, list, barThickness) {
   let tooltipEl = document.getElementById("bar-tooltip-drawer4");
@@ -2066,20 +2121,35 @@ function drawer4ChartOptions(mode, list, barThickness) {
   const entry = list[dp.dataIndex];
   const { allyName, wins, losses, games, total, perGame } = entry;
   const wr = games > 0 ? (wins / games) * 100 : 0;
-  const mmrValue = mode === "total" ? total : perGame;
- /* const absVal = Math.abs(mmrValue).toFixed(2); */
+const wrText = `${wr.toFixed(1)}%`;
 
-const absVal = formatValue(Math.abs(mmrValue), mode);
+let bodyHtml;
 
-  tooltipEl.innerHTML = `
-    <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
-    <div style="font-family:monospace; opacity:0.85;">
-      ${wins} wins, ${losses} losses, ${wr.toFixed(1)}%. 
-      ${absVal} ${mmrValue < 0
-        ? (mode === "total" ? "Points lost." : "Points lost per game.")
-        : (mode === "total" ? "Points gained." : "Points gained per game.")}
-    </div>
+if (mode === "games") {
+  bodyHtml = `
+    ${games} games. 
+    ${wins} wins, ${losses} losses, ${wrText}. 
+    ${formatValue(Math.abs(total), "total")} points ${total >= 0 ? "gained." : "lost."}
   `;
+} else {
+  const value = mode === "total" ? total : perGame;
+  const absVal = formatValue(Math.abs(value), mode);
+
+  bodyHtml = `
+    ${wins} wins, ${losses} losses, ${wrText}. 
+    ${absVal} ${value < 0
+      ? (mode === "total" ? "Points lost." : "Points lost per game.")
+      : (mode === "total" ? "Points gained." : "Points gained per game.")}
+  `;
+}
+
+tooltipEl.innerHTML = `
+  <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
+  <div style="font-family:monospace; opacity:0.85;">
+    ${bodyHtml}
+  </div>
+`;
+
 
 const rect = ctx.chart.canvas.getBoundingClientRect();
     const mouse = ctx.chart.tooltip?._eventPosition;
