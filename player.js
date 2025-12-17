@@ -987,8 +987,8 @@ function formatValue(value, mode) {
           let mmrValue = mode === "total" ? total : (games > 0 ? total / games : 0);
           let mmrLabel =
             mmrValue < 0
-              ? (mode === "total" ? "Points lost" : "Points lost per game")
-              : (mode === "total" ? "Points gained" : "Points gained per game");
+              ? (mode === "total" ? "points lost" : "points lost per game")
+              : (mode === "total" ? "points gained" : "points gained per game");
 
           const mmrAbs = formatValue(Math.abs(mmrValue), mode);
 
@@ -1348,8 +1348,8 @@ function matchupChartOptions(mode, list, barThickness = 44) {
     const mmrAbs = formatValue(Math.abs(mmrValue), mode);
     const mmrLabel =
       mmrValue < 0
-        ? (mode === "total" ? "Points lost" : "Points lost per game")
-        : (mode === "total" ? "Points gained" : "Points gained per game");
+        ? (mode === "total" ? "points lost" : "points lost per game")
+        : (mode === "total" ? "points gained" : "points gained per game");
 
     function pluralize(count, singular, plural = null) {
       if (plural === null) plural = singular + "s";
@@ -1729,8 +1729,8 @@ function drawer3ChartOptions(mode, list, barThickness) {
           const mmrAbs = formatValue(Math.abs(mmrValue), mode);
           const mmrLabel =
             mmrValue < 0
-              ? (mode === "total" ? "Points lost" : "Points lost per game")
-              : (mode === "total" ? "Points gained" : "Points gained per game");
+              ? (mode === "total" ? "points lost" : "points lost per game")
+              : (mode === "total" ? "points gained" : "points gained per game");
 
           // Teammates + opponents letters
           const tA = (entry.teammateA || "").toUpperCase();
@@ -2145,8 +2145,8 @@ if (mode === "games") {
   bodyHtml = `
     ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
     ${absVal} ${value < 0
-      ? (mode === "total" ? "Points lost." : "Points lost per game.")
-      : (mode === "total" ? "Points gained." : "Points gained per game.")}
+      ? (mode === "total" ? "points lost." : " points lost per game.")
+      : (mode === "total" ? "points gained." : "points gained per game.")}
   `;
 }
 
