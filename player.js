@@ -2068,7 +2068,14 @@ function drawDrawer4Games(list) {
 
 
 
-
+function plural(n, singular, pluralForm) {
+  if (!pluralForm) {
+    // common irregulars
+    if (singular === "loss") pluralForm = "losses";
+    else pluralForm = singular + "s";
+  }
+  return `${n} ${n === 1 ? singular : pluralForm}`;
+}
 
 
 
@@ -2127,8 +2134,8 @@ let bodyHtml;
 
 if (mode === "games") {
   bodyHtml = `
-    ${games} games. 
-    ${wins} wins, ${losses} losses, ${wrText}. 
+    ${plural(games, "game")}. 
+    ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
     ${formatValue(Math.abs(total), "total")} points ${total >= 0 ? "gained." : "lost."}
   `;
 } else {
@@ -2136,7 +2143,7 @@ if (mode === "games") {
   const absVal = formatValue(Math.abs(value), mode);
 
   bodyHtml = `
-    ${wins} wins, ${losses} losses, ${wrText}. 
+    ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
     ${absVal} ${value < 0
       ? (mode === "total" ? "Points lost." : "Points lost per game.")
       : (mode === "total" ? "Points gained." : "Points gained per game.")}
