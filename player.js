@@ -1892,10 +1892,15 @@ toggleEl.onclick = () => {
   } else if (mode === "pergame") {
     drawDrawer4Games(drawer4DataCache);
     toggleEl.dataset.mode = "games";
-    toggleEl.textContent = "Show All Points Gained";
+    toggleEl.textContent = "Show Win Rate";
     labelEl.textContent = "Number of Games Played with Each Ally";
 
-  } else {
+} else if (mode === "games") {
+  drawDrawer4WinRate(drawer4DataCache);
+  toggleEl.dataset.mode = "winrate";
+  toggleEl.textContent = "Show All Points Gained";
+  labelEl.textContent = "Win Rates with Regular Allies";
+} else {
     drawDrawer4Total(drawer4DataCache);
     toggleEl.dataset.mode = "total";
     toggleEl.textContent = "Show Points per Game";
@@ -1906,12 +1911,15 @@ toggleEl.onclick = () => {
 };
 }
 
+
+
 // Parse raw drawer4 data
 function parseDrawer4Data(obj, names) {
   return Object.entries(obj || {})
     .map(([allyId, arr]) => {
       const [mmr, wins, losses] = arr ?? [0, 0, 0];
       const games = (wins ?? 0) + (losses ?? 0);
+      const winRate = games > 0 ? wins / games : 0;
 
       return {
         allyId,
@@ -1920,7 +1928,8 @@ function parseDrawer4Data(obj, names) {
         wins: wins ?? 0,
         losses: losses ?? 0,
         games,
-        perGame: games > 0 ? mmr / games : 0
+        perGame: games > 0 ? mmr / games : 0,
+        winRate
       };
     })
     .sort((a, b) => b.total - a.total);
@@ -2060,6 +2069,54 @@ function drawDrawer4Games(list) {
 
 
 
+function winRateColor(wr) {
+  // wr is 0–1
+  const t = Math.max(0, Math.min((wr - 0.5) / 0.5, 1));
+  return interpolateColor("#444444", "#32AA5E", t);
+}
+
+
+function drawDrawer4WinRate(list) {
+  resetDrawer4Chart();
+
+  const MIN_GAMES = 5;
+
+  const filtered = list.filter(x => x.games >= MIN_GAMES);
+  if (filtered.length === 0) return;
+
+  const sorted = filtered.sort((a, b) => b.winRate - a.winRate);
+
+  const canvas = document.getElementById("extraChart4");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const thickness = Math.max(14, calcBarThicknessHigh(sorted.length));
+
+  drawer4ChartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: sorted.map(x => x.allyName),
+      datasets: [{
+        data: sorted.map(x => +(x.winRate * 100).toFixed(1)),
+        backgroundColor: sorted.map(x => winRateColor(x.winRate)),
+        barThickness: thickness,
+        maxBarThickness: 44
+      }]
+    },
+    options: drawer4ChartOptions("winrate", sorted, thickness)
+  });
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2132,7 +2189,19 @@ const wrText = `${wr.toFixed(1)}%`;
 
 let bodyHtml;
 
-if (mode === "games") {
+
+
+
+
+
+
+if (mode === "winrate") {
+  bodyHtml = `
+    ${plural(games, "game")}.
+    ${plural(wins, "win")}, ${plural(losses, "loss")}.
+    ${wrText} win rate.
+  `;
+} else if (mode === "games") {
   bodyHtml = `
     ${plural(games, "game")}. 
     ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
@@ -2145,10 +2214,14 @@ if (mode === "games") {
   bodyHtml = `
     ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
     ${absVal} ${value < 0
-      ? (mode === "total" ? "points lost." : " points lost per game.")
+      ? (mode === "total" ? "points lost." : "points lost per game.")
       : (mode === "total" ? "points gained." : "points gained per game.")}
   `;
 }
+
+
+
+
 
 tooltipEl.innerHTML = `
   <div style="font-weight:bold;margin-bottom:3px;">${allyName}</div>
