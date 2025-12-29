@@ -152,7 +152,7 @@ body tr:hover {
   width: 100%;
 }
 
-.chart-footer .chart-label {
+.chart-footer .chart-label {       
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -168,6 +168,16 @@ body tr:hover {
 .chart-footer button {
   margin-left: auto;
 }
+
+.chart-indicator {
+    font-size: .95em;
+    color: var(--muted);
+    min-width: 32px; 
+    
+}
+
+
+
 
 .chart-mode-btn {
   padding: 6px 10px;
@@ -479,38 +489,44 @@ body tr:hover {
     </div>
   </div>
 
-  <!-- COLLAPSIBLE SECTION (initially hidden) -->
+  <!-- Additional statistics drawer -->
+
 <div id="extra-stats">
     <div class="extra-chart">
         <canvas id="extraChart1"  height="260"></canvas>
 
         <div class="chart-footer">
-            <div class="chart-label" id="extraChart1Label">Loading...</div>
+    <div class="chart-indicator" id="extraChart1Indicator">(1/3)</div>
 
+    <div class="chart-label" id="extraChart1Label">Loading...</div>
 
-            <button id="chartModeToggle" class="chart-mode-btn">
-                Show Points per Game
-            </button>
-        </div>
+    <button id="chartModeToggle" class="chart-mode-btn">
+        Show Points per Game
+    </button>
+</div>
     </div>
     
     <div class="extra-chart">
         <canvas id="extraChart2" height="260"></canvas> 
         
         <div class="chart-footer">
-            <div class="chart-label" id="extraChart2Label">Loading...</div>
-            
-            <button id="chartModeToggle2" class="chart-mode-btn" style="display: none;">
-                Show Points per Game
-            </button>
-        </div>
+    <div class="chart-indicator" id="extraChart2Indicator">(1/4)</div>
+
+    <div class="chart-label" id="extraChart2Label">Loading...</div>
+
+    <button id="chartModeToggle2" class="chart-mode-btn">
+        Show Points per Game
+    </button>
+</div>
     </div>
     
 
-    <div class="extra-chart-tall" id="extraChart3Container">
+
+<div class="extra-chart-tall" id="extraChart3Container">
         <canvas id="extraChart3" height="260"></canvas> 
         
         <div class="chart-footer">
+            <div class="chart-indicator" id="extraChart3Indicator">(1/4)</div>
             <div class="chart-label" id="extraChart3Label">Loading...</div>
             
             <button id="chartModeToggle3" class="chart-mode-btn" style="display: none;">
@@ -519,10 +535,16 @@ body tr:hover {
         </div>
     </div>
 
+
+
+
+
+
    <div class="extra-chart-tall" id="extraChart4Container">
         <canvas id="extraChart4" height="260"></canvas> 
         
         <div class="chart-footer">
+            <div class="chart-indicator" id="extraChart4Indicator">(1/4)</div>
             <div class="chart-label" id="extraChart4Label">Loading...</div>
             
             <button id="chartModeToggle4" class="chart-mode-btn" style="display: none;">
@@ -531,6 +553,8 @@ body tr:hover {
         </div>
     </div>
     
+
+
 
 
 
@@ -576,11 +600,11 @@ body tr:hover {
      </div>
     <div id="matches"><!-- JS will append .match-row items here --></div>
   </section>
-
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
   <script src="player.js?v=2"></script>
 
 
 </body>
-
 </html>
