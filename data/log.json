@@ -1,16 +1,6 @@
 [
     {
         "status": "ALL OK.",
-        "start_time": 1766628009.7836692,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 117,
-        "new_customs": 0,
-        "games_processed": 1012,
-        "duration": 35.115772008895874
-    },
-    {
-        "status": "ALL OK.",
         "start_time": 1766634142.4399571,
         "mode_selected": 2,
         "mode_actual": 2,
@@ -998,5 +988,15 @@
         "new_customs": 0,
         "games_processed": 1025,
         "duration": 41.30001640319824
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1767022084.9292686,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 110,
+        "new_customs": 0,
+        "games_processed": 1025,
+        "duration": 20.125841856002808
     }
 ]
