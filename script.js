@@ -53,6 +53,12 @@ async function getCurrentSeason() {
 
 
 
+function formatSeasonRange(start, end) {
+  const startStr = formatFullDate(start);
+  const endStr = end ? formatFullDate(end) : '';
+  return end ? `${startStr} – ${endStr}` : startStr;
+}
+
 function updateSeasonCountdown(extraEl) {
   const now = Date.now();
   const remaining = seasonCountdownEndTime - now;
@@ -128,13 +134,7 @@ function ratingToIcon(rating) {
   return "icons/s.jpg";
 }
 
-function formatSeasonRange(start, end) {
-  const opts = { month: "short", year: "numeric" };
-  const a = new Date(start).toLocaleDateString(undefined, opts);
-  if (!end) return `${a} –`;
-  const b = new Date(end).toLocaleDateString(undefined, opts);
-  return `${a} – ${b}`;
-}
+formatSeasonRange
 
 function formatDate(ts) {
   return new Date(ts).toLocaleDateString(undefined, {
@@ -280,7 +280,7 @@ function renderLeaderboard(ratings, names) {
 }
 
 
-  // --- NEW FUNCTION: center red label based on green width ---
+  // CLEAN UP THIS SHIT
  function setupSeasonShift(seasonLabelEl) {
   const wrap = document.querySelector(".season-wrap");
   const extra = seasonLabelEl?.querySelector(".season-extra");
@@ -420,26 +420,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     seasonPanelEl.appendChild(header);
 
     allSeasons.forEach(season => {
-      if (season === viewingSeason) return;
-      const start = seasonMeta.seasons[season];
-      const end = seasonMeta.seasons[season + 1] ?? null;
+  if (season === viewingSeason) return;
 
-      const row = document.createElement("div");
-      row.className = "season-item";
-      if (season === currentSeason) row.classList.add("current-season");
+  const start = seasonMeta.seasons[season];
+  const end = seasonMeta.seasons[season + 1] ?? null;
 
-      row.innerHTML = `
-        <span>Season ${season}</span>
-        <span class="season-dates">${formatSeasonRange(start, end)}</span>
-      `;
+  const row = document.createElement("div");
+  row.className = "season-item";
+  if (season === currentSeason) row.classList.add("current-season");
 
-      row.addEventListener("click", async (e) => {
-        e.stopPropagation();
-        seasonPanelEl.hidden = true;
-        await loadSeason(season, seasonLabelEl); // <-- pass the label here
-      });
-      seasonPanelEl.appendChild(row);
-    });
+  row.innerHTML = `
+    <span class="season-number">Season ${season}</span>
+    <span class="season-dates">${formatSeasonRange(start, end)}</span>
+  `;
+
+  row.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    seasonPanelEl.hidden = true;
+    await loadSeason(season, seasonLabelEl);
+  });
+
+  seasonPanelEl.appendChild(row);
+});
   }
 
   rebuildSeasonPanel();
@@ -469,11 +471,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   // ------------------------
-  // INITIAL LABEL & SHIFT
+  // CLEAN UP THIS SHIT
   // ------------------------
   if (seasonLabelEl) {
     updateSeasonLabel(currentSeason, startTime, endTime, seasonLabelEl);
-    setupSeasonShift(seasonLabelEl); // <-- pass the label here
+    setupSeasonShift(seasonLabelEl); 
 
     // Season countdown logic
 
@@ -498,5 +500,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  await loadSeason(viewingSeason ?? currentSeason, seasonLabelEl); // <-- pass the label here
+  await loadSeason(viewingSeason ?? currentSeason, seasonLabelEl); 
 });
