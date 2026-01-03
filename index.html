@@ -9,12 +9,14 @@
     <link rel="stylesheet" href="style.css" />
    <style>
 
+/* =========================
+   Base layout & typography
+   ========================= */
 
 body {
     color: #ddd;
     text-align: center;
 }
-
 
 .row-link {
     display: block;
@@ -24,9 +26,12 @@ body {
     text-decoration: none;
 }
 
+/* =========================
+   Header
+   ========================= */
 
 header {
-    margin: 2px 0 26px 0; 
+    margin: 2px 0 26px 0;
 }
 
 header h1 {
@@ -35,12 +40,10 @@ header h1 {
     margin: 0;
 }
 
-
 header p {
     color: #aaa;
     margin-top: 4px;
 }
-
 
 .last-updated {
     font-size: 0.8rem;
@@ -48,30 +51,33 @@ header p {
     margin-bottom: 20px;
 }
 
+/* =========================
+   Season label + hover
+   ========================= */
 
 .season-wrap {
     display: inline-block;
     position: relative;
     transition: transform 0.25s ease;
     cursor: default;
-
-    /* optional: slightly enlarge hover area */
     padding: 2px 4px;
 }
 
 .season-wrap::before {
     content: "";
     position: absolute;
-    left: -4px;   /* small buffer */
+    left: -4px;
     right: -4px;
     top: -4px;
     bottom: -4px;
+    pointer-events: none;
 }
 
-.season-wrap:hover #season-label .season-extra {
+/* Hover expansion (CURRENT season only) */
+.season-wrap:hover .season-extra {
     max-width: 200px;
     opacity: 1;
-    padding: 1px 6px;
+    padding: 2px 6px;
 }
 
 .season-wrap:hover {
@@ -79,15 +85,21 @@ header p {
 }
 
 #season-label {
+    cursor: pointer;
     user-select: none;
     position: relative;
     display: inline-block;
-
     background-color: #e74c3c;
     color: white;
     padding: 3px 6px;
+    margin-top: 5px;
     border-radius: 4px;
+    font-size: 1.1rem;
 }
+
+/* =========================
+   Season extra (green box)
+   ========================= */
 
 .season-extra {
     user-select: none;
@@ -100,17 +112,15 @@ header p {
     background: #44935F;
     white-space: nowrap;
     border-radius: 4px;
-    
+
+    display: flex;
+    align-items: center;
+
     opacity: 0;
     max-width: 0;
     overflow: hidden;
 
-    display: flex;            /* center content */
-    align-items: center;      /* vertical centering */
-    
-
-    min-height: 22px;         /* makes box taller */
-              
+    min-height: 24px;
 
     transition:
         max-width 0.05s ease,
@@ -120,40 +130,126 @@ header p {
 
 
 
-.content-container {
-    width: 1100px; 
-    margin: 0 auto;
-    padding: 0; 
+/* ===== HISTORIC MODE: season extra ===== */
+
+
+
+/* Remove any initial shift in historic mode */
+body.historic-view .season-wrap {
+    transform: none;  /* start centered */
 }
 
+/* Hover: slide red label based on --shift-x */
+body.historic-view .season-wrap:hover {
+    transform: translateX(var(--shift-x));
+}
+
+/* Historic mode green box starts collapsed */
+body.historic-view .season-extra {
+    opacity: 0;
+    max-width: 0;
+    padding: 0;
+    transition: max-width 0.05s ease, opacity 0.04s ease, padding 0.04s ease;
+}
+
+/* Hover expansion identical to current season */
+body.historic-view .season-wrap:hover .season-extra {
+    max-width: 450px;
+    opacity: 1;
+    padding: 2px 6px;
+}
+/* =========================
+   Season dropdown panel
+   ========================= */
+
+.season-panel {
+    position: absolute;
+    top: 60%;
+    right: 45%;
+    background: #e74c3c;
+    border-radius: 6px;
+    padding: 6px 0;
+    min-width: 240px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    z-index: 9999;
+    transform-origin: top right;
+}
+
+.season-panel .season-item {
+    padding: 6px 12px;
+    color: #fff;
+    white-space: nowrap;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.season-item {
+    cursor: pointer;
+}
+
+.season-item:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+.season-item.current-season {
+    background: rgba(255,255,255,0.15);
+    font-weight: 600;
+}
+
+.season-item.current-season .season-dates {
+    color: #fff;
+}
+
+.season-panel .season-dates {
+    color: #ffd6d1;
+    font-size: 0.8rem;
+}
+
+.season-header {
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.9;
+    padding: 6px 10px;
+    pointer-events: none;
+}
+
+/* =========================
+   Table layout
+   ========================= */
+
+.content-container {
+    width: 1100px;
+    margin: 0 auto;
+    padding: 0;
+}
 
 .table-wrapper {
     display: inline-block;
     border: 1px solid #2a2a2a;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 6px rgba(0,0,0,0.4);
 }
 
 .table-wrapper table {
-    width: 1100px; 
+    width: 1100px;
     border-collapse: collapse;
     margin: 0;
     background-color: #1e1e1e;
 }
-
 
 .leaderboard-table {
     table-layout: fixed;
     width: 100%;
 }
 
-
 th,
 td {
     padding: 10px 14px;
     text-align: center;
-    
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -171,18 +267,13 @@ th {
     text-align: left;
 }
 
-
-
-
 tr:nth-child(even) {
     background-color: #2a2a2a;
 }
 
-
 tr:hover {
     background-color: #3a3a3a;
 }
-
 
 tr.clickable {
     cursor: pointer;
@@ -192,29 +283,52 @@ tr.clickable:hover td {
     color: #fff;
 }
 
-
 tr:hover .row-link,
 tr:hover td a.row-link {
-    color: #fff !important; 
+    color: #fff !important;
 }
-
 
 td a.row-link {
-    color: inherit !important; 
+    color: inherit !important;
 }
 
+/* =========================
+   HISTORIC MODE: table
+   ========================= */
 
+body.historic-view tr {
+    cursor: default;
+}
 
-.col-gutter-left { width: 42px; } 
+body.historic-view tr:hover {
+    background-color: transparent !important;
+}
+
+body.historic-view tr:hover td {
+    color: inherit !important;
+}
+
+body.historic-view tr.clickable {
+    pointer-events: none;
+}
+
+body.historic-view td,
+body.historic-view th {
+    user-select: none;
+}
+
+/* =========================
+   Column sizing
+   ========================= */
+
+.col-gutter-left { width: 42px; }
 .leaderboard-table col.col-rank { width: 172px; }
 .leaderboard-table col.col-player { width: 220px; }
 .leaderboard-table col.col-rating { width: 142px; }
 .leaderboard-table col.col-mmr { width: 142px; }
-
 .leaderboard-table col.col-wl { width: 142px; }
 .leaderboard-table col.col-lastplayed { width: 180px; }
-.col-gutter-right { width: 72px; } 
-
+.col-gutter-right { width: 72px; }
 
 .leaderboard-table th:first-child,
 .leaderboard-table td:first-child {
@@ -226,25 +340,25 @@ td a.row-link {
     padding-right: 76px;
 }
 
+/* =========================
+   Player & rating cells
+   ========================= */
+
 .player-cell {
-    
     color: #89CFF0;
     font-size: 1.2rem;
-    text-align: left
+    text-align: left;
 }
-
-
 
 .leaderboard-table td.player-cell a {
     display: block;
-    min-width: 0; 
+    min-width: 0;
 }
 
 .race-subtext {
     font-size: 0.8rem;
     color: #aaa;
 }
-
 
 .rating-cell {
     display: flex;
@@ -259,22 +373,12 @@ td a.row-link {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+body.historic-view table,
+body.historic-view tr,
+body.historic-view td,
+body.historic-view th {
+  pointer-events: none;
+}
 
 
 </style>
@@ -288,16 +392,23 @@ td a.row-link {
 
     <header>
       <h1>The Customs Ladder</h1>
-      <p class="season-wrap">
-  <span id="season-label">
-    <span class="season-core">Season</span>
-    <span class="season-extra">Jan–Mar 2025</span>
-  </span>
-</p>
+<span id="season-label" role="button" tabindex="0" class="season-wrap">
+  <span class="season-core">Season</span>
+  <span class="season-extra">Jan–Mar 2025</span>
+</span>
+
+<div id="season-panel" class="season-panel" hidden></div>
+
       <div id="season-info"></div>
     </header>
 
     <div class="last-updated" id="last-updated"></div>
+
+
+
+
+
+
 
     <div class="table-wrapper">
       <table id="leaderboard" class="leaderboard-table">
@@ -356,5 +467,4 @@ td a.row-link {
 
 
 </body>
-
 </html>
