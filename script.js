@@ -430,7 +430,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (season === currentSeason) row.classList.add("current-season");
 
   row.innerHTML = `
-    <span class="season-number">Season ${season}</span>
+    <span class="season-number">Season ${season}:</span>
+    
     <span class="season-dates">${formatSeasonRange(start, end)}</span>
   `;
 
@@ -486,17 +487,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   // ------------------------
   // Last updated info
   // ------------------------
-  const lastUpdatedEl = document.getElementById("last-updated");
+const lastUpdatedEl = document.getElementById("last-updated");
   if (lastUpdatedEl) {
     try {
       const procData = await fetchNoCache("data/misc_data.json").then(r => r.json());
       const lastProcess = procData.last_process;
       const tsMs = lastProcess < 1e12 ? lastProcess * 1000 : lastProcess;
       const relTime = timeAgo(tsMs);
-      lastUpdatedEl.innerHTML = `Match data from <a href="https://shieldbattery.net" target="_blank" rel="noopener noreferrer" style="color:#89CFF0;">ShieldBattery.net</a>. Last updated ${relTime}.`;
+      
+      
+      lastUpdatedEl.innerHTML = `Match data from <a href="https://shieldbattery.net" target="_blank" rel="noopener noreferrer" style="color:#89CFF0;">ShieldBattery.net</a>. <span class="last-process-time">Last updated ${relTime}.</span>`;
     } catch (err) {
       console.error("Failed to load proc_data.json:", err);
-      lastUpdatedEl.textContent = "Match data from ShieldBattery.net (last updated: unknown).";
+      lastUpdatedEl.innerHTML = `Match data from <a href="https://shieldbattery.net" target="_blank" rel="noopener noreferrer" style="color:#89CFF0;">ShieldBattery.net</a>.`;
     }
   }
 
