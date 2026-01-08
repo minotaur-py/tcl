@@ -2,22 +2,188 @@
 // Assumes script.js is loaded first and provides:
 // getCurrentSeason(), timeAgo(), mostPlayedRace()
 
+
+
+const raceColors = {
+    Protoss: "#EBD678",
+    Terran: "#53B3FC",
+    Zerg: "#C1A3F5",
+    Random: "#AABBCB"
+  };
+
 async function loadPlayerPage() {
+
+  // --------------------------------------------------
+  // Helpers
+  // --------------------------------------------------
+
+async function getOtherSeasonsWithPlayer(playerId, viewingSeason, maxSeason) {
+  const seasons = [];
+
+  for (let s = 0; s <= maxSeason; s++) {
+    if (s === viewingSeason) continue;
+
+    try {
+      const res = await fetchNoCache(`data/seasons/${s}/ratings.json`);
+      if (!res.ok) continue;
+
+      const ratings = await res.json();
+      if (ratings && ratings[playerId]) {
+        seasons.push(s);
+      }
+    } catch {
+      // missing season → ignore
+    }
+  }
+
+  return seasons;
+}
+
+  async function hasPlayerDataInSeason(playerId, season) {
+  try {
+    const res = await fetchNoCache(`data/seasons/${season}/ratings.json`);
+    if (!res.ok) return false;
+    const ratings = await res.json();
+    return !!ratings[playerId];
+  } catch {
+    return false;
+  }
+}
+
+
+function buildSeasonPanel(panelEl, allSeasons) {
+  panelEl.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "season-header";
+  header.textContent = "Select season";
+  panelEl.appendChild(header);
+
+  // avail. seasons
+  
+  allSeasons.forEach(season => {
+    if (season === viewingSeason) return;
+
+    const row = document.createElement("div");
+    row.className = "season-item";
+    
+    
+    if (season === currentSeason) {
+      row.classList.add("current-season");
+    }
+
+    
+    
+    row.innerHTML = `<span class="season-number">Season ${season}</span>`;
+
+    
+    row.addEventListener("click", () => {
+      panelEl.hidden = true;
+      
+      window.location.href =
+        season === currentSeason
+          ? `player.html?id=${playerId}`
+          : `player.html?id=${playerId}&season=${season}`;
+    });
+
+    panelEl.appendChild(row);
+  });
+}
+
+
+
+
+
+
+
+ 
+
+  // --------------------------------------------------
+  // URL + season resolution
+  // --------------------------------------------------
+
   const urlParams = new URLSearchParams(window.location.search);
   const playerId = urlParams.get("id");
   if (!playerId) return;
 
-  const currentSeason = await getCurrentSeason();
+  const currentSeasonObj = await getCurrentSeason();
+  const currentSeason = Number(currentSeasonObj.season);
+
+  const seasonParam = urlParams.get("season");
+  const viewingSeason =
+    seasonParam !== null ? Number(seasonParam) : currentSeason;
+  window.viewingSeason = viewingSeason; 
+
+  const backLink = document.getElementById("backToIndex");
+
+if (backLink) {
+  if (viewingSeason !== currentSeason) {
+    backLink.href = `index.html?season=${viewingSeason}`;
+  } else {
+    backLink.href = "index.html";
+  }
+}
+ 
+ const otherSeasons = await getOtherSeasonsWithPlayer(
+  playerId,
+  viewingSeason,
+  currentSeason
+);
+
+const archiveBtn = document.getElementById("archive-season-toggle");
+const archivePanel = document.getElementById("archive-season-panel");
+
+if (archiveBtn) {
+  archiveBtn.style.display =
+    otherSeasons.length === 0 ? "none" : "inline-flex";
+}
+
+
+archiveBtn?.addEventListener("click", (e) => {
+  if (otherSeasons.length === 0) return;
+
+  e.stopPropagation();
+  buildSeasonPanel(archivePanel, otherSeasons);
+  archivePanel.hidden = !archivePanel.hidden;
+});
+
+document.addEventListener("click", () => {
+  archivePanel.hidden = true;
+});
+
+ 
+
+
+  // --------------------------------------------------
+  // Load season-specific data
+  // --------------------------------------------------
+
+  const baseSeasonPath = `data/seasons/${viewingSeason}`;
 
   const [playerData, names, maps, ratings] = await Promise.all([
-    fetchNoCache(`data/seasons/${currentSeason}/players/${playerId}.json`).then(r => r.json()),
-    fetchNoCache(`data/seasons/${currentSeason}/names.json`).then(r => r.json()),
+    fetchNoCache(`${baseSeasonPath}/players/${playerId}.json`).then(r => r.json()),
+    fetchNoCache(`${baseSeasonPath}/names.json`).then(r => r.json()),
     fetchNoCache("data/maps.json").then(r => r.json()),
-    fetchNoCache(`data/seasons/${currentSeason}/ratings.json`).then(r => r.json())
+    fetchNoCache(`${baseSeasonPath}/ratings.json`).then(r => r.json())
   ]);
 
-  const playerName = names[playerId] || playerId;
-  document.getElementById("playerNameHeader").textContent = playerName;
+  // --------------------------------------------------
+  // Header
+  // --------------------------------------------------
+
+  const headerEl = document.getElementById("playerNameHeader");
+  if (headerEl) {
+    const playerName = names[playerId] || playerId;
+    headerEl.textContent = playerName;
+
+    if (viewingSeason !== currentSeason) {
+  const seasonTag = document.createElement("span");
+  seasonTag.className = "season-indicator";
+  seasonTag.textContent = `Season ${viewingSeason}`;
+  headerEl.appendChild(seasonTag);
+}
+  }
+
 
   // --- Get full player stats ---
   const allPlayers = Object.entries(ratings).map(([id, v]) => {
@@ -32,14 +198,15 @@ async function loadPlayerPage() {
     };
   });
 
-  const MIN_GAMES = 10;
-  const eligiblePlayers = allPlayers.filter(p => p.games >= MIN_GAMES).sort((a, b) => b.points - a.points);
-  const playerStats = allPlayers.find(p => p.id === playerId);
-  if (!playerStats) return;
 
-  const rankPlayer = eligiblePlayers.find(p => p.id === playerId);
-  const points = playerStats.points.toFixed(0);
-  const rank = rankPlayer ? eligiblePlayers.indexOf(rankPlayer) + 1 : "—";
+const rankedPlayers = rankPlayers(allPlayers, names);
+
+
+const playerStats = rankedPlayers.find(p => p.id === playerId);
+if (!playerStats) return;
+
+const rank = playerStats.rank ?? "—";
+const points = Math.round(playerStats.points);
   const mmr = playerStats.mu.toFixed(2);
   const winrate = ((playerStats.wins / playerStats.games) * 100).toFixed(1);
 
@@ -56,44 +223,11 @@ async function loadPlayerPage() {
   const mostPlayed = mostPlayedRace(countsForFunction);
 
 
-  const raceColors = {
-    Protoss: "#EBD678",
-    Terran: "#53B3FC",
-    Zerg: "#C1A3F5",
-    Random: "#AABBCB"
-  };
+  
   const mostPlayedColor = raceColors[mostPlayed] || "#AABBCB"; 
 
 
-function ratingToIcon(rating) {                                 /* already in script.js - dedupe */
-  // determine bucket value (the third element in your ranges table)
-  let bucket;
-  if (rating <= 399) bucket = 0;
-  else if (rating <= 849) bucket = 1;
-  else if (rating <= 1999) bucket = 2;
-  else if (rating <= 2999) bucket = 3;
-  else if (rating <= 3999) bucket = 4;
-  else if (rating <= 4999) bucket = 5;
-  else if (rating <= 5999) bucket = 6;
-  else if (rating <= 6999) bucket = 7;
-  else if (rating <= 7999) bucket = 8;
-  else if (rating <= 8999) bucket = 9;
-  else if (rating <= 10499) bucket = 10;
-  else if (rating <= 11999) bucket = 11;
-  else if (rating <= 14499) bucket = 12;
-  else bucket = 13;
 
-  // map bucket → icon file
-  if (bucket <= 1) return "icons/d1.jpg";
-  if (bucket === 2) return "icons/d2.jpg";
-  if (bucket === 3) return "icons/d3.jpg";
-
-  if (bucket >= 4 && bucket <= 6) return `icons/c${bucket - 3}.jpg`;
-  if (bucket >= 7 && bucket <= 9) return `icons/b${bucket - 6}.jpg`;
-  if (bucket >= 10 && bucket <= 12) return `icons/a${bucket - 9}.jpg`;
-
-  return "icons/s.jpg";
-}
 
 
   const raceDisplayHTML = `
@@ -150,7 +284,7 @@ function ratingToIcon(rating) {                                 /* already in sc
     </div>
   `;
 
-  // Inject HTML into the page
+  
   const overviewEl = document.getElementById("playeroverview-text");
   if (overviewEl) {
     overviewEl.innerHTML = statsHTML;
@@ -173,12 +307,7 @@ function ratingToIcon(rating) {                                 /* already in sc
     }
 
     const races = ["Protoss", "Terran", "Zerg", "Random"];
-    const raceColors = {
-      Protoss: "#EBD678",
-      Terran: "#53B3FC",
-      Zerg: "#C1A3F5",
-      Random: "#AABBCB"
-    };
+
 
     const raceCounts = playerStats.races;
     const raceWins = playerStats.winsByRace;
@@ -472,7 +601,7 @@ function ratingToIcon(rating) {                                 /* already in sc
                         <span style="
                           overflow: hidden;
                           text-overflow: ellipsis;
-                          max-width: 265px;
+                          max-width: 285px;
                           display: inline-block;
                           padding-right: 12px;
                         ">${p.name} (${info.name})</span>
@@ -491,7 +620,7 @@ function ratingToIcon(rating) {                                 /* already in sc
 <!-- RATING COLUMN -->
 <span style="
   text-align: right;
-  min-width: 90px;
+  min-width: 95px;
 ">
   ${ratingAfter}
   <span style="color:white;">(</span><span style="color:${changeColor};">${change}</span><span style="color:white;">)</span>
@@ -596,7 +725,9 @@ function playerCard(p) {
     <div class="player-card">
       <img src="${raceIcon(race)}" class="race-icon">
 
-      <a href="player.html?id=${id}" class="player-name">${name}</a>
+      <a href="player.html?id=${id}&season=${viewingSeason}" class="player-name">
+        ${name}
+      </a>
 
       <div class="player-points" style="display:flex; align-items:center; gap:7px;">
   <img
@@ -704,7 +835,7 @@ if (opened && !chartLoaded) {
     loadMatchupChart(playerId);   // PWM
     loadDrawer3Chart(playerId);   // 
     loadDrawer4Chart(playerId);
-    loadPlaceholderChart();
+    
     chartLoaded = true;
   }
 }
@@ -745,7 +876,12 @@ if (opened && !chartLoaded) {
   // Fetch season data once
   // ----------------------------------------------------
 async function loadPlayerData(playerId) {
-  const season = await getCurrentSeason();
+  
+
+  const season = window.viewingSeason;
+
+  
+  
   const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
   if (!res.ok) return null;
 
@@ -1069,11 +1205,7 @@ function formatValue(value, mode) {
     document.body.appendChild(tooltipEl);
   }
 
-  const raceColors = {
-    Protoss: "#EBD678",
-    Terran: "#53B3FC",
-    Zerg:   "#C1A3F5"
-  };
+
 
   const labelToKey = { Protoss: "p", Terran: "t", Zerg: "z" };
 
@@ -1297,7 +1429,13 @@ function switchMatchupChart() {
 
 
 async function loadMatchupChart(playerId) {
-  const season = await getCurrentSeason();
+  
+  const season = window.viewingSeason;
+
+
+  
+
+
   const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
   if (!res.ok) return;
 
@@ -1773,7 +1911,13 @@ function updateDrawer3ChartIndicator(mode) {
 // Drawer 3
 // ======================================================================
 async function loadDrawer3Chart(playerId) {
-  const season = await getCurrentSeason();
+  
+
+const season = window.viewingSeason;
+
+  
+
+
   const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
   if (!res.ok) return;
 
@@ -2308,7 +2452,11 @@ function updateExtraChart4Height(barCount) {
 }
 
 async function loadDrawer4Chart(playerId) {
-  const season = await getCurrentSeason();
+  
+const season = window.viewingSeason;
+
+
+
 
   let stats, names;
   try {

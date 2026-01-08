@@ -1,6 +1,7 @@
 let viewingSeason = null; // number
 let isHistoricView = false; // boolean
 let currentSeason = null;
+
 let tbody = null;
 let seasonMeta = null;
 
@@ -8,6 +9,9 @@ let seasonCountdownInterval = null;
 let seasonCountdownShowing = false;
 let seasonCountdownOriginalText = "";
 let seasonCountdownEndTime = null;
+
+const BASE_PATH = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+
 
 function fetchNoCache(url) {
   return fetch(`${url}?v=${Date.now()}`);
@@ -50,6 +54,62 @@ async function getCurrentSeason() {
 
   return result;
 }
+
+function getSeasonFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has("season")) return null;
+
+  const n = Number(params.get("season"));
+  return Number.isInteger(n) ? n : null;
+}
+
+function withSeason(url, season) {
+  if (season === null || season === undefined) return url;
+  if (season === currentSeason) return url;
+
+  
+  const u = new URL(url, window.location.href);
+  u.searchParams.set("season", season);
+  
+  
+  return u.pathname + u.search;
+}
+
+
+function rankPlayers(players, names) {
+  // sort with tie-breaking rules
+  const sorted = [...players].sort((a, b) => {
+    // 1) points
+    if (b.points !== a.points) return b.points - a.points;
+
+    // 2) MMR
+    if (b.mu !== a.mu) return b.mu - a.mu;
+
+    // 3) name (stable + deterministic)
+    const nameA = (names[a.id] || a.id).toLowerCase();
+    const nameB = (names[b.id] || b.id).toLowerCase();
+    return nameA.localeCompare(nameB);
+  });
+
+  // competition ranking (1,2,2,4)
+  let currentRank = 0;
+  let lastKey = null;
+
+  sorted.forEach((p, idx) => {
+    const key = `${p.points}|${p.mu}`;
+
+    if (key !== lastKey) {
+      currentRank = idx + 1;
+      lastKey = key;
+    }
+
+    p.rank = currentRank;
+  });
+
+  return sorted;
+}
+
+
 
 
 
@@ -99,12 +159,22 @@ function enableSeasonCountdown(seasonLabelEl, endTime) {
 
 
 
-
+/*
 function maybeLink(inner, href) {
   return isHistoricView
     ? `<span class="row-static">${inner}</span>`
     : `<a href="${href}" class="row-link">${inner}</a>`;
 }
+
+
+*/
+
+function maybeLink(inner, href) {
+  // always return a link, regardless of historic view
+  return `<a href="${href}" class="row-link${isHistoricView ? " historic-link" : ""}">${inner}</a>`;
+}
+
+
 
 function ratingToIcon(rating) {
   let bucket;
@@ -227,16 +297,17 @@ function renderLeaderboard(ratings, names) {
     };
   });
 
-  const MIN_GAMES = 0;
-  const eligiblePlayers = allPlayers
-    .filter(p => p.games >= MIN_GAMES)
-    .sort((a, b) => b.rating - a.rating);
-
-  eligiblePlayers.forEach((p, idx) => p.rank = idx + 1);
+const rankedPlayers = rankPlayers(
+  allPlayers.map(p => ({
+    ...p,
+    points: p.rating   // adapt leaderboard "rating" to ranking "points"
+  })),
+  names
+);
 
   tbody.innerHTML = "";
 
-  eligiblePlayers.forEach(p => {
+  rankedPlayers.forEach(p => {
     const race = mostPlayedRace(p.races);
     const playerName = names[p.id] || p.id;
 
@@ -246,13 +317,13 @@ function renderLeaderboard(ratings, names) {
     row.innerHTML = `
       <td></td>
       <td>
-        ${maybeLink(p.rank, `player.html?id=${p.id}`)}
+        ${maybeLink(p.rank, withSeason(`player.html?id=${p.id}`, viewingSeason))}
       </td>
       <td class="player-cell">
         ${maybeLink(
           `<span class="player-name">${playerName}</span><br>
            <span class="race-subtext">${race}</span>`,
-          `player.html?id=${p.id}`
+          withSeason(`player.html?id=${p.id}`, viewingSeason)
         )}
       </td>
       <td>
@@ -261,17 +332,17 @@ function renderLeaderboard(ratings, names) {
              <img src="${ratingToIcon(p.rating)}" alt="" class="rating-icon">
              <span>${p.rating}</span>
            </span>`,
-          `player.html?id=${p.id}`
+          withSeason(`player.html?id=${p.id}`, viewingSeason)
         )}
       </td>
       <td>
-        ${maybeLink(`${p.mu.toFixed(0)}`, `player.html?id=${p.id}`)}
+        ${maybeLink(`${p.mu.toFixed(0)}`, withSeason(`player.html?id=${p.id}`, viewingSeason))}
       </td>
       <td>
-        ${maybeLink(`${p.wins}-${p.losses}`, `player.html?id=${p.id}`)}
+        ${maybeLink(`${p.wins}-${p.losses}`, withSeason(`player.html?id=${p.id}`, viewingSeason))}
       </td>
       <td>
-        ${maybeLink(`${timeAgo(p.ts)}`, `player.html?id=${p.id}`)}
+        ${maybeLink(`${timeAgo(p.ts)}`, withSeason(`player.html?id=${p.id}`, viewingSeason))}
       </td>
       <td></td>
     `;
@@ -326,9 +397,21 @@ async function loadSeason(seasonNumber, seasonLabelEl) {
 
 if (currentSeason === null) return;
 
+  
   viewingSeason = seasonNumber;
-  isHistoricView = seasonNumber !== currentSeason;
-  document.body.classList.toggle("historic-view", isHistoricView);
+
+isHistoricView = viewingSeason !== currentSeason;
+document.body.classList.toggle("historic-view", isHistoricView);
+
+
+
+history.replaceState(
+  { season: viewingSeason },
+  "",
+  isHistoricView
+    ? withSeason("index.html", viewingSeason)
+    : "index.html"
+);
 
   const start = seasonMeta.seasons[seasonNumber];
   const end = seasonMeta.seasons[seasonNumber + 1] ?? null;
@@ -342,8 +425,8 @@ if (currentSeason === null) return;
 
 
   const [ratings, names] = await Promise.all([
-    fetchNoCache(`data/seasons/${seasonNumber}/ratings.json`).then(r => r.json()),
-    fetchNoCache(`data/seasons/${seasonNumber}/names.json`).then(r => r.json())
+    fetchNoCache(`${BASE_PATH}data/seasons/${seasonNumber}/ratings.json`).then(r => r.json()),
+    fetchNoCache(`${BASE_PATH}data/seasons/${seasonNumber}/names.json`).then(r => r.json())
   ]);
 
   renderLeaderboard(ratings, names);
@@ -403,73 +486,94 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     allSeasons.sort((a, b) => b - a);
   }
+  
+  const seasonFromURL = getSeasonFromURL();
 
-  viewingSeason = currentSeason;
-  isHistoricView = false;
+viewingSeason =
+  seasonFromURL !== null &&
+  seasonFromURL !== currentSeason &&
+  seasonFromURL in seasonMeta.seasons
+    ? seasonFromURL
+    : currentSeason;
+
+isHistoricView = viewingSeason !== currentSeason;
+document.body.classList.toggle("historic-view", isHistoricView);
+
+
 
   const seasonLabelEl = document.getElementById("season-label");
   attachSeasonExtraHandler(seasonLabelEl);
-  const seasonPanelEl = document.getElementById("season-panel");
-  const seasonCoreEl = seasonLabelEl?.querySelector(".season-core");
+  
+  
 
-  function rebuildSeasonPanel() {
-    seasonPanelEl.innerHTML = "";
-    const header = document.createElement("div");
-    header.className = "season-header";
-    header.textContent = "Select season";
-    seasonPanelEl.appendChild(header);
 
-    allSeasons.forEach(season => {
-  if (season === viewingSeason) return;
+function buildSeasonPanel(panelEl) {
+  panelEl.innerHTML = "";
 
-  const start = seasonMeta.seasons[season];
-  const end = seasonMeta.seasons[season + 1] ?? null;
+  const header = document.createElement("div");
+  header.className = "season-header";
+  header.textContent = "Select season";
+  panelEl.appendChild(header);
 
-  const row = document.createElement("div");
-  row.className = "season-item";
-  if (season === currentSeason) row.classList.add("current-season");
+  allSeasons.forEach(season => {
+    if (season === viewingSeason) return;
 
-  row.innerHTML = `
-    <span class="season-number">Season ${season}:</span>
-    
-    <span class="season-dates">${formatSeasonRange(start, end)}</span>
-  `;
+    const start = seasonMeta.seasons[season];
+    const end = seasonMeta.seasons[season + 1] ?? null;
 
-  row.addEventListener("click", async (e) => {
-    e.stopPropagation();
-    seasonPanelEl.hidden = true;
-    await loadSeason(season, seasonLabelEl);
-  });
+    const row = document.createElement("div");
+    row.className = "season-item";
+    if (season === currentSeason) row.classList.add("current-season");
 
-  seasonPanelEl.appendChild(row);
-});
-  }
+    row.innerHTML = `
+      <span class="season-number">Season ${season}</span>
 
-  rebuildSeasonPanel();
+      <span class="season-dates-grid">
+        <span class="season-date from">${formatFullDate(start)}</span>
+        <span class="season-date dash">–</span>
+        <span class="season-date to">${end ? formatFullDate(end) : ""}</span>
+      </span>
+    `;
 
-  function toggleSeasonPanel(force) {
-    const show = force ?? seasonPanelEl.hidden;
-    seasonPanelEl.hidden = !show;
-  }
-
-  seasonCoreEl?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    rebuildSeasonPanel();
-    toggleSeasonPanel();
-  });
-
-  document.addEventListener("click", () => {
-    if (seasonPanelEl) seasonPanelEl.hidden = true;
-  });
-
-  seasonCoreEl?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
+    row.addEventListener("click", async (e) => {
       e.stopPropagation();
-      rebuildSeasonPanel();
-      toggleSeasonPanel();
-    }
+      panelEl.hidden = true;
+      await loadSeason(season, seasonLabelEl);
+    });
+
+    panelEl.appendChild(row);
   });
+}
+
+const archiveBtn = document.getElementById("archive-season-toggle");
+const archivePanel = document.getElementById("archive-season-panel");
+
+archiveBtn?.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  
+
+  buildSeasonPanel(archivePanel);
+  archivePanel.hidden = !archivePanel.hidden;
+});
+
+document.addEventListener("click", () => {
+  archivePanel.hidden = true;
+});
+
+
+
+
+
+  
+
+  
+
+
+
+
+
+
 
   // ------------------------
   // CLEAN UP THIS SHIT
