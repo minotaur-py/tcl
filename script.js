@@ -413,8 +413,8 @@ history.replaceState(
   { season: viewingSeason },
   "",
   isHistoricView
-    ? withSeason("index.html", viewingSeason)
-    : "index.html"
+    ? `index.html?season=${viewingSeason}`  // historic season
+    : "index.html"                         // current season
 );
 
   const start = seasonMeta.seasons[seasonNumber];
