@@ -64,14 +64,18 @@ function getSeasonFromURL() {
 }
 
 function withSeason(url, season) {
-  if (season === null || season === undefined) return url;
-  if (season === currentSeason) return url;
-
-  
   const u = new URL(url, window.location.href);
-  u.searchParams.set("season", season);
-  
-  
+
+  if (season !== null && season !== undefined) {
+    // always remember where we came from
+    u.searchParams.set("fromSeason", season);
+
+    // only set season if it’s not the current one
+    if (season !== currentSeason) {
+      u.searchParams.set("season", season);
+    }
+  }
+
   return u.pathname + u.search;
 }
 
@@ -351,7 +355,7 @@ const rankedPlayers = rankPlayers(
 }
 
 
-  // CLEAN UP THIS SHIT
+  
  function setupSeasonShift(seasonLabelEl) {
   const wrap = document.querySelector(".season-wrap");
   const extra = seasonLabelEl?.querySelector(".season-extra");
@@ -575,9 +579,6 @@ document.addEventListener("click", () => {
 
 
 
-  // ------------------------
-  // CLEAN UP THIS SHIT
-  // ------------------------
   if (seasonLabelEl) {
     updateSeasonLabel(currentSeason, startTime, endTime, seasonLabelEl);
     setupSeasonShift(seasonLabelEl); 
@@ -588,9 +589,9 @@ document.addEventListener("click", () => {
 
   }
 
-  // ------------------------
+
   // Last updated info
-  // ------------------------
+
 const lastUpdatedEl = document.getElementById("last-updated");
   if (lastUpdatedEl) {
     try {

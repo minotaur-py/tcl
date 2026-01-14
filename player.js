@@ -59,41 +59,43 @@ function buildSeasonPanel(panelEl, allSeasons) {
   header.textContent = "Select season";
   panelEl.appendChild(header);
 
-  // avail. seasons
-  
   allSeasons.forEach(season => {
+    // Skip the season the user is already looking at
     if (season === viewingSeason) return;
 
     const row = document.createElement("div");
     row.className = "season-item";
     
-    
     if (season === currentSeason) {
       row.classList.add("current-season");
     }
 
-    
-    
     row.innerHTML = `<span class="season-number">Season ${season}</span>`;
 
     
     row.addEventListener("click", () => {
       panelEl.hidden = true;
-      
-      window.location.href =
-        season === currentSeason
-          ? `player.html?id=${playerId}`
-          : `player.html?id=${playerId}&season=${season}`;
+
+      const u = new URL(window.location.href);
+
+      if (season === currentSeason) {
+        u.searchParams.delete("season");
+      } else {
+        u.searchParams.set("season", season);
+      }
+
+      // Preserve original entry season
+      const params = new URLSearchParams(window.location.search);
+      const originSeason = params.get("fromSeason") ?? params.get("season") ?? currentSeason;
+      u.searchParams.set("fromSeason", originSeason);
+
+      window.location.href = u.toString();
     });
 
+    
     panelEl.appendChild(row);
   });
 }
-
-
-
-
-
 
 
  
@@ -110,15 +112,22 @@ function buildSeasonPanel(panelEl, allSeasons) {
   const currentSeason = Number(currentSeasonObj.season);
 
   const seasonParam = urlParams.get("season");
-  const viewingSeason =
-    seasonParam !== null ? Number(seasonParam) : currentSeason;
-  window.viewingSeason = viewingSeason; 
+const fromSeasonParam = urlParams.get("fromSeason");
+
+const viewingSeason =
+  seasonParam !== null ? Number(seasonParam) : currentSeason;
+
+const fromSeason =
+  fromSeasonParam !== null ? Number(fromSeasonParam) : viewingSeason;
+
+window.viewingSeason = viewingSeason;
+window.fromSeason = fromSeason;
 
   const backLink = document.getElementById("backToIndex");
 
 if (backLink) {
-  if (viewingSeason !== currentSeason) {
-    backLink.href = `index.html?season=${viewingSeason}`;
+  if (fromSeason !== currentSeason) {
+    backLink.href = `index.html?season=${fromSeason}`;
   } else {
     backLink.href = "index.html";
   }
