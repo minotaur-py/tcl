@@ -883,18 +883,25 @@ if (opened && !chartLoaded) {
   // Fetch season data once
 
 async function loadPlayerData(playerId) {
-  
-
   const season = window.viewingSeason;
 
-  
-  
-  const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
-  if (!res.ok) return null;
+  // Fetch both sources in parallel
+  const [statsRes, ratingsRes] = await Promise.all([
+    fetchNoCache(`data/seasons/${season}/statistics_data.json`),
+    fetchNoCache(`data/seasons/${season}/ratings.json`)
+  ]);
 
-  const data = await res.json();
-  const player = data.pwr?.[playerId];
-  if (!player) return null;
+  if (!statsRes.ok || !ratingsRes.ok) return null;
+
+  const statsData = await statsRes.json();
+  const ratingsData = await ratingsRes.json();
+
+  const player = statsData.pwr?.[playerId];
+  const rating = ratingsData?.[playerId];
+
+  if (!player || !rating || !Array.isArray(rating)) return null;
+
+  
 
   function parse(entry) {
     if (!entry) return { total: 0, wins: 0, losses: 0, games: 0 };
@@ -907,37 +914,64 @@ async function loadPlayerData(playerId) {
     };
   }
 
+  // --- basic stats ----------------------------------------------------
+
   const p = parse(player.p);
   const t = parse(player.t);
   const z = parse(player.z);
 
-return {
-  raw: { p, t, z },
+  // --- estimated MMR (mu / sigma) ------------------------------------
 
-  games: {
-    p: p.games,
-    t: t.games,
-    z: z.games
-  },
+  
+  // [..., mu_p, sigma_p, mu_t, sigma_t, mu_z, sigma_z, mu_r, sigma_r]
+  const muSigmaStart = rating.length - 8;
 
-  total: {
-    p: p.total,
-    t: t.total,
-    z: z.total
-  },
+  const estimatedMMR = {
+    p: {
+      mu: rating[muSigmaStart + 0] ?? 0,
+      sigma: rating[muSigmaStart + 1] ?? 0
+    },
+    t: {
+      mu: rating[muSigmaStart + 2] ?? 0,
+      sigma: rating[muSigmaStart + 3] ?? 0
+    },
+    z: {
+      mu: rating[muSigmaStart + 4] ?? 0,
+      sigma: rating[muSigmaStart + 5] ?? 0
+    }
+  };
 
-  perGame: {
-    p: p.games > 0 ? p.total / p.games : 0,
-    t: t.games > 0 ? t.total / t.games : 0,
-    z: z.games > 0 ? z.total / z.games : 0
-  },
+  
 
-  winrate: {
-    p: p.games > 0 ? (p.wins / p.games) * 100 : 0,
-    t: t.games > 0 ? (t.wins / t.games) * 100 : 0,
-    z: z.games > 0 ? (z.wins / z.games) * 100 : 0
-  }
-};
+  return {
+    raw: { p, t, z },
+
+    games: {
+      p: p.games,
+      t: t.games,
+      z: z.games
+    },
+
+    total: {
+      p: p.total,
+      t: t.total,
+      z: z.total
+    },
+
+    perGame: {
+      p: p.games > 0 ? p.total / p.games : 0,
+      t: t.games > 0 ? t.total / t.games : 0,
+      z: z.games > 0 ? z.total / z.games : 0
+    },
+
+    winrate: {
+      p: p.games > 0 ? (p.wins / p.games) * 100 : 0,
+      t: t.games > 0 ? (t.wins / t.games) * 100 : 0,
+      z: z.games > 0 ? (z.wins / z.games) * 100 : 0
+    },
+
+    estimatedMMR
+  };
 }
 
 
@@ -945,17 +979,38 @@ const CHART_MODES = [
   "games",
   "winrate",
   "total",
-  "pergame"
+  "pergame",
+  "estimatedmmr"
+
 ];
 
 
-  
-  // Switch chart type
-  
+function canShowEstimatedMMR(data) {
+  let count = 0;
+  if (data.games.p >= 5) count++;
+  if (data.games.t >= 5) count++;
+  if (data.games.z >= 5) count++;
+  return count >= 2;
+}
+
+
 function switchChart() {
   const current = chartToggleBtn.dataset.mode;
-  const nextIndex = (CHART_MODES.indexOf(current) + 1) % CHART_MODES.length;
-  const next = CHART_MODES[nextIndex];
+  let index = CHART_MODES.indexOf(current);
+
+  let next;
+
+  do {
+    index = (index + 1) % CHART_MODES.length;
+    next = CHART_MODES[index];
+
+    
+    if (next === "estimatedmmr" && !canShowEstimatedMMR(cachedData)) {
+      continue;
+    }
+
+    break;
+  } while (true);
 
   chartToggleBtn.dataset.mode = next;
   updateChartIndicator(next);
@@ -975,9 +1030,14 @@ function switchChart() {
     updateExtraChartLabel("Points Gained with Each Race");
     chartToggleBtn.textContent = "Show Points per Game";
 
-  } else {
+  } else if (next === "pergame") {
     drawPerGameChart(cachedData);
     updateExtraChartLabel("Points Gained per Game with Each Race");
+    chartToggleBtn.textContent = "Show Estimated MMR";
+
+  } else if (next === "estimatedmmr") {
+    drawEstimatedMMRChart(cachedData);
+    updateExtraChartLabel("Estimated Single Race MMR-Values");
     chartToggleBtn.textContent = "Show Games Played";
   }
 }
@@ -995,14 +1055,12 @@ function updateChartIndicator(mode) {
   const el = document.getElementById("extraChart1Indicator");
   if (!el) return;
 
-  const map = {
-    games: "(1/4)",
-    winrate: "(2/4)",
-    total: "(3/4)",
-    pergame: "(4/4)"
-  };
+  const effectiveModes = canShowEstimatedMMR(cachedData)
+    ? CHART_MODES
+    : CHART_MODES.filter(m => m !== "estimatedmmr");
 
-  el.textContent = map[mode] ?? "";
+  const index = effectiveModes.indexOf(mode) + 1;
+  el.textContent = `(${index}/${effectiveModes.length})`;
 }
 
 
@@ -1158,7 +1216,64 @@ function drawWinrateChart(data) {
 
 
 
+function drawEstimatedMMRChart(data) {
+  resetChart();
 
+  const MIN_GAMES = 5;
+
+  // Build array with game counts included
+  const arr = [
+    {
+      key: "p",
+      label: "Protoss",
+      games: data.games.p,
+      value: data.estimatedMMR.p.mu,
+      sigma: data.estimatedMMR.p.sigma,
+      color: "#EBD678"
+    },
+    {
+      key: "t",
+      label: "Terran",
+      games: data.games.t,
+      value: data.estimatedMMR.t.mu,
+      sigma: data.estimatedMMR.t.sigma,
+      color: "#53B3FC"
+    },
+    {
+      key: "z",
+      label: "Zerg",
+      games: data.games.z,
+      value: data.estimatedMMR.z.mu,
+      sigma: data.estimatedMMR.z.sigma,
+      color: "#C1A3F5"
+    }
+  ];
+
+  // 1. Filter races with enough games
+  const eligible = arr.filter(r => r.games >= MIN_GAMES);
+
+  // 2. Require at least two eligible races
+  if (eligible.length < 2) {
+    return; // silently skip MMR chart
+  }
+
+  // 3. Sort by estimated MMR
+  const sorted = eligible.sort((a, b) => b.value - a.value);
+
+  const ctx = document.getElementById("extraChart1").getContext("2d");
+
+  chartInstance = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: sorted.map(r => r.label),
+      datasets: [{
+        data: sorted.map(r => r.value),
+        backgroundColor: sorted.map(r => r.color)
+      }]
+    },
+    options: chartOptions("estimatedmmr", data)
+  });
+}
 
 
 
@@ -1247,54 +1362,58 @@ function formatValue(value, mode) {
   const color = raceColors[race];
 
   const plural = (n, w) =>
-    w === "loss" ? (n === 1 ? "loss" : "losses") : (n === 1 ? w : w + "s");
+  w === "loss" ? (n === 1 ? "loss" : "losses") : (n === 1 ? w : w + "s");
 
-  
+
+const prefixText = `${games} ${plural(games, "game")}, ${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wrTxt}. `;
+
+
 let valueText;
+
 if (mode === "pergame") {
-  let perGame = games > 0 ? total / games : 0;
-  if (perGame < 0) {
-    valueText = `${formatValue(Math.abs(perGame), mode)} points lost per game.`;
-  } else {
-    valueText = `${formatValue(perGame, mode)} points gained per game.`;
-  }
+  const perGame = games > 0 ? total / games : 0;
+  valueText =
+    perGame < 0
+      ? `${formatValue(Math.abs(perGame), mode)} points lost per game.`
+      : `${formatValue(perGame, mode)} points gained per game.`;
+
+} else if (mode === "estimatedmmr") {
+  const mu = playerStats.estimatedMMR[key].mu;
+  const sigma = playerStats.estimatedMMR[key].sigma;
+
+  valueText =
+  `Estimated MMR: ${Math.round(mu)}. ` +
+  `Uncertainty: ${sigma.toFixed(2)}.`;
+
+
 } else {
-  if (total < 0) {
-    valueText = `${Math.abs(total)} points lost.`;
-  } else {
-    valueText = `${total} points gained.`;
-  }
+  valueText =
+    total < 0
+      ? `${Math.abs(total)} points lost.`
+      : `${total} points gained.`;
 }
 
-  
-let prefixText;
-  if (mode === "games") {
-    
-    prefixText = `${games} ${plural(games, "game")}, ${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wrTxt}. `;
-  } else {
-    prefixText = `${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wrTxt}. `;
-  }
-
-  tooltipEl.innerHTML = `
-    <div style="display:flex; align-items:center; font-weight:bold;">
-      <span style="
-        width:10px;height:10px;
-        background:${color};
-        display:inline-block;
-        border-radius:2px;
-        margin-right:6px;
-      "></span>
-      <span>${race}</span>
-    </div>
-    <div style="
-      margin-top:4px;
-      margin-left:16px;
-      font-family:monospace;
-      opacity:0.85;
-    ">
-      ${prefixText}${valueText}
-    </div>
-  `;
+// 3. Update the tooltip HTML
+tooltipEl.innerHTML = `
+  <div style="display:flex; align-items:center; font-weight:bold;">
+    <span style="
+      width:10px;height:10px;
+      background:${color};
+      display:inline-block;
+      border-radius:2px;
+      margin-right:6px;
+    "></span>
+    <span>${race}</span>
+  </div>
+  <div style="
+    margin-top:4px;
+    margin-left:16px;
+    font-family:monospace;
+    opacity:0.85;
+  ">
+    ${prefixText}${valueText}
+  </div>
+`;
 
   
   // Mouse positioning
@@ -1425,16 +1544,10 @@ function switchMatchupChart() {
 
 
 
-
-
-
-
 async function loadMatchupChart(playerId) {
   
   const season = window.viewingSeason;
 
-
-  
 
 
   const res = await fetchNoCache(`data/seasons/${season}/statistics_data.json`);
@@ -1596,20 +1709,6 @@ function drawMatchupChartWinrate(list) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function drawMatchupChartTotal(list) {
   resetMatchupChart();
 
@@ -1667,9 +1766,6 @@ function matchupColor(key) {
 
 
 
-
-
-
 function matchupChartOptions(mode, list) {
   let tooltipEl = document.getElementById("bar-tooltip-matchups");
   if (!tooltipEl) {
@@ -1708,83 +1804,83 @@ function matchupChartOptions(mode, list) {
       tooltip: {
         enabled: false,
         external: ctx => {
-          const tooltip = ctx.tooltip;
-          if (!tooltip || !tooltip.opacity) {
-            tooltipEl.style.opacity = 0;
-            return;
-          }
+  const tooltip = ctx.tooltip;
+  if (!tooltip || !tooltip.opacity) {
+    tooltipEl.style.opacity = 0;
+    return;
+  }
 
-          const dp = tooltip.dataPoints?.[0];
-          if (!dp) return;
+  const dp = tooltip.dataPoints?.[0];
+  if (!dp) return;
 
-          const entry = list[dp.dataIndex];
-          const { label, wins, losses, games, total, perGame } = entry;
-          const wr = games > 0 ? (wins / games) * 100 : 0;
+  const entry = list[dp.dataIndex];
+  const { label, wins, losses, games, total, perGame } = entry;
+  const wr = games > 0 ? (wins / games) * 100 : 0;
+  const wrTxt = wr.toFixed(1) + "%";
 
-          const plural = (n, w) =>
-            w === "loss" ? (n === 1 ? "loss" : "losses") : (n === 1 ? w : w + "s");
+  const plural = (n, w) =>
+    w === "loss" ? (n === 1 ? "loss" : "losses") : (n === 1 ? w : w + "s");
 
-          let prefixText = "";
-          if (mode === "games") {
-            prefixText = `${games} ${plural(games, "game")}, ${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wr.toFixed(1)}%. `;
-          } else {
-            prefixText = `${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wr.toFixed(1)}%. `;
-          }
+  
+  const prefixText = `${games} ${plural(games, "game")}, ${wins} ${plural(wins, "win")}, ${losses} ${plural(losses, "loss")}, ${wrTxt}. `;
 
-          let valueText = "";
-          if (mode === "pergame") {
-            if (perGame < 0) {
-              valueText = `${formatValue(Math.abs(perGame), mode)} points lost per game.`;
-            } else {
-              valueText = `${formatValue(perGame, mode)} points gained per game.`;
-            }
-          } else {
-            if (total < 0) {
-              valueText = `${Math.abs(total)} points lost.`;
-            } else {
-              valueText = `${total} points gained.`;
-            }
-          }
+  
+  let valueText = "";
+  if (mode === "pergame") {
+    if (perGame < 0) {
+      valueText = `${formatValue(Math.abs(perGame), mode)} points lost per game.`;
+    } else {
+      valueText = `${formatValue(perGame, mode)} points gained per game.`;
+    }
+  } else {
+    
+    if (total < 0) {
+      valueText = `${Math.abs(total)} points lost.`;
+    } else {
+      valueText = `${total} points gained.`;
+    }
+  }
 
-          const raceA = entry.teammateA.toLowerCase();
-          const raceB = entry.teammateB.toLowerCase();
-          const colors = { p: "#EBD678", t: "#53B3FC", z: "#C1A3F5" };
-          const c1 = colors[raceA] || "#999";
-          const c2 = colors[raceB] || "#999";
+  const raceA = entry.teammateA.toLowerCase();
+  const raceB = entry.teammateB.toLowerCase();
+  const colors = { p: "#EBD678", t: "#53B3FC", z: "#C1A3F5" };
+  const c1 = colors[raceA] || "#999";
+  const c2 = colors[raceB] || "#999";
 
-          tooltipEl.innerHTML = `
-            <div style="display:flex;align-items:center;gap:3px;font-weight:bold;margin-bottom:3px;">
-              <span style="width:10px;height:10px;background:${c1};display:inline-block;border-radius:2px;"></span>
-              <span style="width:10px;height:10px;background:${c2};display:inline-block;border-radius:2px;"></span>
-              <span>${label}</span>
-            </div>
-            <div style="font-family:monospace; opacity:0.85;">
-              ${prefixText}${valueText}
-            </div>
-          `;
+  tooltipEl.innerHTML = `
+    <div style="display:flex;align-items:center;gap:3px;font-weight:bold;margin-bottom:3px;">
+      <span style="width:10px;height:10px;background:${c1};display:inline-block;border-radius:2px;"></span>
+      <span style="width:10px;height:10px;background:${c2};display:inline-block;border-radius:2px;"></span>
+      <span>${label}</span>
+    </div>
+    <div style="font-family:monospace; opacity:0.85; margin-left: 23px;">
+      ${prefixText}${valueText}
+    </div>
+  `;
 
-          const rect = ctx.chart.canvas.getBoundingClientRect();
-          const mouse = ctx.chart.tooltip?._eventPosition;
-          let x = mouse ? mouse.x : tooltip.caretX;
-          let y = mouse ? mouse.y : tooltip.caretY;
+  //  Positioning Logic
+  const rect = ctx.chart.canvas.getBoundingClientRect();
+  const mouse = ctx.chart.tooltip?._eventPosition;
+  let x = mouse ? mouse.x : tooltip.caretX;
+  let y = mouse ? mouse.y : tooltip.caretY;
 
-          let tooltipX = rect.left + window.pageXOffset + x + 14;
-          let tooltipY = rect.top + window.pageYOffset + y - 12;
+  let tooltipX = rect.left + window.pageXOffset + x + 14;
+  let tooltipY = rect.top + window.pageYOffset + y - 12;
 
-          const ttWidth = tooltipEl.offsetWidth;
-          const ttHeight = tooltipEl.offsetHeight;
-          const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-          const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const ttWidth = tooltipEl.offsetWidth;
+  const ttHeight = tooltipEl.offsetHeight;
+  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
 
-          if (tooltipX + ttWidth > viewportWidth - 6) tooltipX = viewportWidth - ttWidth - 6;
-          if (tooltipX < 0) tooltipX = 0;
-          if (tooltipY + ttHeight > viewportHeight - 8) tooltipY = viewportHeight - ttHeight - 8;
-          if (tooltipY < 0) tooltipY = 0;
+  if (tooltipX + ttWidth > viewportWidth - 6) tooltipX = viewportWidth - ttWidth - 6;
+  if (tooltipX < 0) tooltipX = 0;
+  if (tooltipY + ttHeight > viewportHeight - 8) tooltipY = viewportHeight - ttHeight - 8;
+  if (tooltipY < 0) tooltipY = 0;
 
-          tooltipEl.style.left = tooltipX + "px";
-          tooltipEl.style.top  = tooltipY + "px";
-          tooltipEl.style.opacity = 1;
-        }
+  tooltipEl.style.left = tooltipX + "px";
+  tooltipEl.style.top  = tooltipY + "px";
+  tooltipEl.style.opacity = 1;
+}
       }
     },
 
@@ -2267,118 +2363,85 @@ function drawer3ChartOptions(mode, list) {
       tooltip: {
         enabled: false,
         external: ctx => {
-          const tooltip = ctx.tooltip;
-          if (!tooltip || !tooltip.opacity) {
-            tooltipEl.style.opacity = 0;
-            return;
-          }
+  const tooltip = ctx.tooltip;
+  if (!tooltip || !tooltip.opacity) {
+    tooltipEl.style.opacity = 0;
+    return;
+  }
 
-          const dp = tooltip.dataPoints?.[0];
-          if (!dp) return;
+  const dp = tooltip.dataPoints?.[0];
+  if (!dp) return;
 
-          const entry = list[dp.dataIndex];
-          const {
-  wins,
-  losses,
-  games,
-  total,
-  perGame,
-  parenthesisIndex
-} = entry;
+  const entry = list[dp.dataIndex];
+  const {
+    wins,
+    losses,
+    games,
+    total,
+    perGame,
+    parenthesisIndex
+  } = entry;
 
-          const wr = games > 0 ? (wins / games) * 100 : 0;
-          let prefixText = "";
+  const wr = games > 0 ? (wins / games) * 100 : 0;
+  const wrTxt = wr.toFixed(1) + "%";
 
-if (mode === "games") {
-  prefixText =
-    `${games} ${pluralize(games, "game")}, ` +
-    `${wins} ${pluralize(wins, "win")}, ` +
-    `${losses} ${pluralize(losses, "Loss", "Losses")}, ` +
-    `${wr.toFixed(1)}%. `;
-} else {
-  prefixText =
-    `${wins} ${pluralize(wins, "win")}, ` +
-    `${losses} ${pluralize(losses, "loss", "losses")}, ` +
-    `${wr.toFixed(1)}%. `
-;
-}
+  // 1. Unified prefix for ALL modes: "X games, Y wins, Z losses, WR%"
+  const prefixText = `${games} ${pluralize(games, "game")}, ` +
+                     `${wins} ${pluralize(wins, "win")}, ` +
+                     `${losses} ${pluralize(losses, "loss", "losses")}, ` +
+                     `${wrTxt}. `;
 
-let valueText = "";
-
-
-if (mode === "winrate") {
-  
-  valueText = "";
-
-} else if (mode === "pergame") {
-  valueText =
-    perGame < 0
+  // 2. Define the suffix value (Points gained/lost)
+  let valueText = "";
+  if (mode === "pergame") {
+    valueText = perGame < 0
       ? `${formatValue(Math.abs(perGame), "pergame")} points lost per game.`
       : `${formatValue(perGame, "pergame")} points gained per game.`;
-
-} else {
-  
-  valueText =
-    total < 0
+  } else {
+    // This now shows for "games", "winrate", and "total" modes
+    valueText = total < 0
       ? `${Math.abs(total)} points lost.`
       : `${total} points gained.`;
+  }
+
+  // Teammates + opponents letters
+  const tA = (entry.teammateA || "").toUpperCase();
+  const tB = (entry.teammateB || "").toUpperCase();
+  const oA = (entry.opponentA || "").toUpperCase();
+  const oB = (entry.opponentB || "").toUpperCase();
+
+  const teamLabel = parenthesisIndex === 2 ? `${tA}(${tB})` : `(${tA})${tB}`;
+  const oppLabel = `${oA}${oB}`;
+
+  tooltipEl.innerHTML = `
+    <div style="display:flex; align-items:center; gap:6px; font-weight:bold; margin-bottom:4px; font-family:inherit;">
+      <div style="display:flex;align-items:center;gap:3px;">
+        <span style="width:10px;height:10px;background:${colors[tA.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
+        <span style="width:10px;height:10px;background:${colors[tB.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
+        <span>${teamLabel}</span>
+      </div>
+      <span style="opacity:0.9;">vs</span>
+      <div style="display:flex;align-items:center;gap:3px;">
+        <span style="width:10px;height:10px;background:${colors[oA.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
+        <span style="width:10px;height:10px;background:${colors[oB.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
+        <span>${oppLabel}</span>
+      </div>
+    </div>
+    <div style="font-family:monospace; font-size:13px; opacity:0.85; line-height:1.2; margin-left:26px;">
+      ${prefixText}${valueText}
+    </div>
+  `;
+
+  // --- Positioning Logic ---
+  const rect = ctx.chart.canvas.getBoundingClientRect();
+  const mouse = ctx.chart.tooltip?._eventPosition;
+  const x = mouse ? mouse.x : tooltip.caretX;
+  const y = mouse ? mouse.y : tooltip.caretY;
+
+  tooltipEl.style.left = (rect.left + window.pageXOffset + x + 14) + "px";
+  tooltipEl.style.top  = (rect.top + window.pageYOffset + y - 12) + "px";
+  tooltipEl.style.opacity = 1;
 }
-
-
-          // Teammates + opponents letters
-          const tA = (entry.teammateA || "").toUpperCase();
-          const tB = (entry.teammateB || "").toUpperCase();
-          const oA = (entry.opponentA || "").toUpperCase();
-          const oB = (entry.opponentB || "").toUpperCase();
-
-          const teamLabel = parenthesisIndex === 2 ? `${tA}(${tB})` : `(${tA})${tB}`;
-          const oppLabel = `${oA}${oB}`;
-
-tooltipEl.innerHTML = `
-  <div style="
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-weight:bold;
-    margin-bottom:4px;
-    letter-spacing:0;
-    font-family:inherit;
-  ">
-    <div style="display:flex;align-items:center;gap:3px;">
-      <span style="width:10px;height:10px;background:${colors[tA.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
-      <span style="width:10px;height:10px;background:${colors[tB.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
-      <span>${teamLabel}</span>
-    </div>
-
-    <span style="opacity:0.9;">vs</span>
-
-    <div style="display:flex;align-items:center;gap:3px;">
-      <span style="width:10px;height:10px;background:${colors[oA.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
-      <span style="width:10px;height:10px;background:${colors[oB.toLowerCase()] || '#666'};display:inline-block;border-radius:2px;"></span>
-      <span>${oppLabel}</span>
-    </div>
-  </div>
-
-  <div style="
-    font-family:monospace;
-    font-size:13px;
-    opacity:0.85;
-    line-height:1.2;
-    letter-spacing:0;
-  ">
-    ${prefixText}${valueText}
-  </div>
-`;
-
-          const rect = ctx.chart.canvas.getBoundingClientRect();
-          const mouse = ctx.chart.tooltip?._eventPosition;
-          const x = mouse ? mouse.x : tooltip.caretX;
-          const y = mouse ? mouse.y : tooltip.caretY;
-
-          tooltipEl.style.left = (rect.left + window.pageXOffset + x + 14) + "px";
-          tooltipEl.style.top  = (rect.top + window.pageYOffset + y - 12) + "px";
-          tooltipEl.style.opacity = 1;
-        }
       }
     },
 
@@ -2847,81 +2910,67 @@ function drawer4ChartOptions(mode, list, barThickness) {
       tooltip: {
         enabled: false,
         external: ctx => {
-          const tooltip = ctx.tooltip;
-          if (!tooltip || !tooltip.opacity) {
-            tooltipEl.style.opacity = 0;
-            return;
-          }
+  const tooltip = ctx.tooltip;
+  if (!tooltip || !tooltip.opacity) {
+    tooltipEl.style.opacity = 0;
+    return;
+  }
 
-          const dp = tooltip.dataPoints?.[0];
-          if (!dp) return;
+  const dp = tooltip.dataPoints?.[0];
+  if (!dp) return;
 
-          const entry = list[dp.dataIndex];
+  const entry = list[dp.dataIndex];
+  const title = dp.label ?? "Unknown";
+  const { wins, losses, games, total, perGame } = entry;
+  const wr = games > 0 ? (wins / games) * 100 : 0;
+  const wrTxt = wr.toFixed(1) + "%";
 
-          
-          const title = dp.label ?? "Unknown";
+  // 1. Unified prefix: Every mode now starts with games, wins, losses, and winrate
+  const prefixText = `${plural(games, "game")}, ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrTxt}. `;
 
-          const { wins, losses, games, total, perGame } = entry;
-          const wr = games > 0 ? (wins / games) * 100 : 0;
-          const wrText = `${wr.toFixed(1)}%`;
+  // 2. Define the suffix value (Points gained/lost)
+  let valueText = "";
+  if (mode === "pergame") {
+    valueText = perGame < 0
+      ? `${formatValue(Math.abs(perGame), "pergame")} points lost per game.`
+      : `${formatValue(perGame, "pergame")} points gained per game.`;
+  } else {
+    // Covers "games", "winrate", and "total" modes
+    valueText = total < 0
+      ? `${formatValue(Math.abs(total), "total")} points lost.`
+      : `${formatValue(total, "total")} points gained.`;
+  }
 
-          let bodyHtml;
+  tooltipEl.innerHTML = `
+    <div style="font-weight:bold; margin-bottom:3px;">
+      ${title}
+    </div>
+    <div style="font-family:monospace; opacity:0.85;">
+      ${prefixText}${valueText}
+    </div>
+  `;
 
-          if (mode === "winrate") {
-            bodyHtml = `
-              ${plural(games, "game")},
-              ${plural(wins, "win")}, ${plural(losses, "loss")}.
-              ${wrText} win rate.
-            `;
-          } else if (mode === "games") {
-            bodyHtml = `
-              ${plural(games, "game")}, 
-              ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
-              ${formatValue(Math.abs(total), "total")} points ${total >= 0 ? "gained." : "lost."}
-            `;
-          } else {
-            const value = mode === "total" ? total : perGame;
-            const absVal = formatValue(Math.abs(value), mode);
+  // --- Positioning Logic ---
+  const rect = ctx.chart.canvas.getBoundingClientRect();
+  const mouse = ctx.chart.tooltip?._eventPosition;
+  const x = mouse ? mouse.x : tooltip.caretX;
+  const y = mouse ? mouse.y : tooltip.caretY;
 
-            bodyHtml = `
-              ${plural(wins, "win")}, ${plural(losses, "loss")}, ${wrText}. 
-              ${absVal} ${
-                value < 0
-                  ? (mode === "total" ? "points lost." : "points lost per game.")
-                  : (mode === "total" ? "points gained." : "points gained per game.")
-              }
-            `;
-          }
+  let tooltipX = rect.left + window.pageXOffset + x + 14;
+  let tooltipY = rect.top + window.pageYOffset + y - 12;
 
-          tooltipEl.innerHTML = `
-            <div style="font-weight:bold;margin-bottom:3px;">
-              ${title}
-            </div>
-            <div style="font-family:monospace; opacity:0.85;">
-              ${bodyHtml}
-            </div>
-          `;
+  const ttWidth = tooltipEl.offsetWidth;
+  const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
 
-          const rect = ctx.chart.canvas.getBoundingClientRect();
-          const mouse = ctx.chart.tooltip?._eventPosition;
-          const x = mouse ? mouse.x : tooltip.caretX;
-          const y = mouse ? mouse.y : tooltip.caretY;
+  if (tooltipX + ttWidth > viewportWidth - 6) {
+    tooltipX = viewportWidth - ttWidth - 6;
+  }
+  if (tooltipX < 0) tooltipX = 0;
 
-          let tooltipX = rect.left + window.pageXOffset + x + 14;
-          let tooltipY = rect.top + window.pageYOffset + y - 12;
-
-          const ttWidth  = tooltipEl.offsetWidth;
-          const viewportWidth = window.visualViewport?.width ?? window.innerWidth;
-
-          if (tooltipX + ttWidth > viewportWidth - 6) {
-            tooltipX = viewportWidth - ttWidth - 6;
-          }
-          if (tooltipX < 0) tooltipX = 0;
-
-          tooltipEl.style.left = tooltipX + "px";
-          tooltipEl.style.top  = tooltipY + "px";
-          tooltipEl.style.opacity = 1;
-        }
+  tooltipEl.style.left = tooltipX + "px";
+  tooltipEl.style.top  = tooltipY + "px";
+  tooltipEl.style.opacity = 1;
+}
       }
     },
 
