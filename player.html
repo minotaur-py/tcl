@@ -394,14 +394,14 @@ body tr:hover {
   padding-bottom: 33px;
 }
 
-/* 2x2 top grid/
+/* NEW: 2×2 GRID WRAPPER */
 .extra-stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 35px;
 }
 
-
+/* BUTTON (unchanged) */
 .extra-stats-btn {
   margin-top: 0px;
   padding: 10px 12px;
@@ -418,7 +418,7 @@ body tr:hover {
   background-color: #3a3a3a;
 }
 
-
+/* CHART CONTAINERS (unchanged core styles) */
 .extra-chart,
 .extra-chart-tall {
   position: relative;
@@ -431,24 +431,24 @@ body tr:hover {
   border-radius: 10px;
 }
 
-/* Row 1 */
+/* TOP ROW CHARTS */
 .extra-chart {
   height: 350px;
 }
 
-
+/* TALL CHARTS (used inside stacks) */
 .extra-chart-tall {
   height: 1050px;
 }
 
-
+/* NEW: STACKED BOTTOM CELLS */
 .extra-chart-stack {
   display: flex;
   flex-direction: column;
   gap: 35px;
 }
 
-
+/* CANVAS BEHAVIOR (unchanged) */
 .extra-chart canvas,
 .extra-chart-tall canvas {
   width: 100%;
