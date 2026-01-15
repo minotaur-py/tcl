@@ -1037,7 +1037,7 @@ function switchChart() {
 
   } else if (next === "estimatedmmr") {
     drawEstimatedMMRChart(cachedData);
-    updateExtraChartLabel("Estimated Single Race MMR-Values");
+    updateExtraChartLabel("Single Race MMR-Values");
     chartToggleBtn.textContent = "Show Games Played";
   }
 }
@@ -3588,6 +3588,7 @@ function drawDrawer6PerGame(list) {
     options: drawer4ChartOptions("pergame", sorted)
   });
 }
+
 
 
 
