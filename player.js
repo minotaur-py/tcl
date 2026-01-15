@@ -1033,7 +1033,7 @@ function switchChart() {
   } else if (next === "pergame") {
     drawPerGameChart(cachedData);
     updateExtraChartLabel("Points Gained per Game with Each Race");
-    chartToggleBtn.textContent = "Show Estimated MMR";
+    chartToggleBtn.textContent = "Show MMR";
 
   } else if (next === "estimatedmmr") {
     drawEstimatedMMRChart(cachedData);
@@ -1382,7 +1382,7 @@ if (mode === "pergame") {
   const sigma = playerStats.estimatedMMR[key].sigma;
 
   valueText =
-  `Estimated MMR: ${Math.round(mu)}. ` +
+  `MMR: ${Math.round(mu)}. ` +
   `Uncertainty: ${sigma.toFixed(2)}.`;
 
 
@@ -3622,3 +3622,4 @@ function drawDrawer6PerGame(list) {
 
 
 })();
+
