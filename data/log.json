@@ -1,6 +1,66 @@
 [
     {
         "status": "ALL OK.",
+        "start_time": 1783561606.3984551,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 14.934297561645508
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1783647906.483594,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 16.9433171749115
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1783733068.5232806,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 37.90757489204407
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1783819577.3383589,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 33.59105038642883
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1783906054.0746882,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 14.644431829452515
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1783991805.3529813,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 103,
+        "new_customs": 0,
+        "games_processed": 1063,
+        "duration": 23.4392511844635
+    },
+    {
+        "status": "ALL OK.",
         "start_time": 1784078025.9464746,
         "mode_selected": 2,
         "mode_actual": 2,
@@ -904,7 +964,7 @@
     },
     {
         "status": "Process crash.",
-        "start_time": 1791774086.6614218,
+        "start_time": 1791755276.4809847,
         "mode_selected": 2,
         "mode_actual": 2,
         "games_checked": 3,
@@ -913,72 +973,12 @@
     },
     {
         "status": "ALL OK.",
-        "start_time": 1791796291.0795171,
+        "start_time": 1791809875.5368605,
         "mode_selected": 2,
         "mode_actual": 2,
-        "games_checked": 5,
+        "games_checked": 110,
         "new_customs": 0,
         "games_processed": 1070,
-        "duration": 8.025949716567993
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791796600.2320292,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 190,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 197.9730191230774
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791797916.9194517,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 242,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 301.8561055660248
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791800614.1922803,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 168,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 158.09807896614075
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791801051.373523,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 169,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 164.62863850593567
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791801936.398724,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 144,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 118.73733282089233
-    },
-    {
-        "status": "ALL OK.",
-        "start_time": 1791802661.6313124,
-        "mode_selected": 2,
-        "mode_actual": 2,
-        "games_checked": 144,
-        "new_customs": 0,
-        "games_processed": 1070,
-        "duration": 95.41639447212219
+        "duration": 34.71563649177551
     }
 ]
