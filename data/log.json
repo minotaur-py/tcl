@@ -1,11 +1,5 @@
 [
     {
-        "status": "Process crash.",
-        "start_time": 1788141738.226375,
-        "mode_selected": 2,
-        "mode_actual": 2
-    },
-    {
         "status": "ALL OK.",
         "start_time": 1788200698.5388978,
         "mode_selected": 2,
@@ -980,5 +974,15 @@
         "new_customs": 6,
         "games_processed": 1192,
         "duration": 233.31987929344177
+    },
+    {
+        "status": "ALL OK.",
+        "start_time": 1793361293.343383,
+        "mode_selected": 2,
+        "mode_actual": 2,
+        "games_checked": 192,
+        "new_customs": 7,
+        "games_processed": 1198,
+        "duration": 155.6254563331604
     }
 ]
