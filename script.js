@@ -194,7 +194,7 @@ function ratingToIcon(rating) {
   else if (rating <= 8999) bucket = 9;
   else if (rating <= 10499) bucket = 10;
   else if (rating <= 11999) bucket = 11;
-  else if (rating <= 14499) bucket = 12;
+  else if (rating <= 14999) bucket = 12;
   else bucket = 13;
 
   if (bucket <= 1) return "icons/d1.jpg";
